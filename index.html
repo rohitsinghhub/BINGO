@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>BINGO 5×5</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+<div class="app">
+
+
+    <!-- HEADER -->
+
+    <header class="header">
+
+        <div class="brand">
+
+            <div class="logo">
+                ▦
+            </div>
+
+            <div>
+
+                <h1>
+                    BINGO <span>5×5</span>
+                </h1>
+
+                <p>
+                    2-Player Paper Replacement
+                </p>
+
+            </div>
+
+            <div class="offline">
+                OFFLINE
+            </div>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- SETUP SCREEN -->
+
+    <section
+        id="setupScreen"
+        class="screen setup-screen"
+    >
+
+        <div class="setup-card">
+
+
+            <h2 class="section-title">
+                🎲 GRID SETUP
+            </h2>
+
+
+            <p class="instruction">
+
+                Tap empty cells to place numbers
+                from 1 to 25
+
+            </p>
+
+
+
+            <div class="next-card">
+
+                <div
+                    id="nextNumber"
+                    class="number-badge"
+                >
+                    1
+                </div>
+
+
+                <div class="next-info">
+
+                    <span>
+                        NEXT NUMBER
+                    </span>
+
+                    <strong id="fillCount">
+                        0 / 25 Filled
+                    </strong>
+
+                </div>
+
+
+                <div class="progress-bar">
+
+                    <div
+                        id="progressFill"
+                    ></div>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="setup-buttons">
+
+                <button
+                    id="randomBtn"
+                    class="random-btn"
+                >
+                    🔀 Random
+                </button>
+
+
+                <button
+                    id="orderBtn"
+                    class="order-btn"
+                >
+                    ↕ 1 to 25
+                </button>
+
+
+                <button
+                    id="clearBtn"
+                    class="clear-btn"
+                >
+                    ↻ Clear
+                </button>
+
+            </div>
+
+
+
+            <!-- SETUP GRID -->
+
+            <div
+                id="setupGrid"
+                class="setup-grid"
+            ></div>
+
+
+
+            <button
+                id="startBtn"
+                class="start-btn"
+                disabled
+            >
+
+                Fill Grid First
+
+            </button>
+
+
+        </div>
+
+    </section>
+
+
+
+    <!-- TURN SCREEN -->
+
+    <section
+        id="turnScreen"
+        class="screen turn-screen hidden"
+    >
+
+        <div class="turn-card">
+
+            <h2>
+                WHO PLAYS FIRST?
+            </h2>
+
+
+            <p>
+                Choose who will make the first move
+            </p>
+
+
+            <button
+                id="myTurnFirst"
+                class="my-turn-btn"
+            >
+
+                🟢 MY TURN FIRST
+
+            </button>
+
+
+            <button
+                id="opponentFirst"
+                class="opponent-turn-btn"
+            >
+
+                🔴 OPPONENT FIRST
+
+            </button>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- GAME SCREEN -->
+
+    <section
+        id="gameScreen"
+        class="screen game-screen hidden"
+    >
+
+
+        <!-- BINGO STATUS -->
+
+        <div class="bingo-status">
+
+
+            <div class="status-header">
+
+                <span>
+                    🏆 B-I-N-G-O STATUS
+                </span>
+
+
+                <span id="lineCount">
+                    0 / 5 Lines
+                </span>
+
+            </div>
+
+
+
+            <div class="bingo-letters">
+
+                <div class="bingo-letter">B</div>
+
+                <div class="bingo-letter">I</div>
+
+                <div class="bingo-letter">N</div>
+
+                <div class="bingo-letter">G</div>
+
+                <div class="bingo-letter">O</div>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- TURN -->
+
+        <div
+            id="turnIndicator"
+            class="turn-indicator my-turn"
+        >
+
+            <span class="turn-dot"></span>
+
+            <span id="turnText">
+                MY TURN
+            </span>
+
+        </div>
+
+
+
+        <!-- GAME BOARD -->
+
+        <div class="game-board">
+
+            <div
+                id="gameGrid"
+                class="game-grid"
+            ></div>
+
+        </div>
+
+
+        <button
+            id="newGameBtn"
+            class="new-game-btn"
+        >
+
+            NEW GAME
+
+        </button>
+
+
+    </section>
+
+
+
+</div>
+
+
+
+<!-- WINNER POPUP -->
+
+<div
+    id="winnerPopup"
+    class="winner-popup hidden"
+>
+
+
+    <div class="winner-box">
+
+        <div class="trophy">
+            🏆
+        </div>
+
+
+        <h1>
+            BINGO!
+        </h1>
+
+
+        <h2 id="winnerText">
+            YOU WIN!
+        </h2>
+
+
+        <p>
+            5 winning lines completed
+        </p>
+
+
+        <button id="winnerNewGame">
+
+            PLAY AGAIN
+
+        </button>
+
+    </div>
+
+
+</div>
+
+
+
+<script src="script.js"></script>
+
+
+</body>
+
+</html>

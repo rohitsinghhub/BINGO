@@ -1,0 +1,1220 @@
+/* ===============================
+   RESET
+================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+body {
+
+    min-height: 100vh;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background:
+
+        radial-gradient(
+            circle at 10% 10%,
+            #182a4d,
+            transparent 35%
+        ),
+
+        radial-gradient(
+            circle at 90% 90%,
+            #063b32,
+            transparent 35%
+        ),
+
+        #080d18;
+
+    color: white;
+
+    overflow-x: hidden;
+}
+
+
+button {
+    font-family: inherit;
+}
+
+
+.hidden {
+    display: none !important;
+}
+
+
+/* ===============================
+   APP
+================================ */
+
+.app {
+
+    width: 100%;
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+/* ===============================
+   HEADER
+================================ */
+
+.header {
+
+    width: min(900px, 94%);
+
+    padding: 18px 0 12px;
+
+    border-bottom:
+        1px solid rgba(255,255,255,0.12);
+}
+
+
+.brand {
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+
+.logo {
+
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 14px;
+
+    font-size: 25px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ffd633,
+            #ff9200
+        );
+
+    box-shadow:
+        0 0 18px
+        rgba(255,170,0,0.45);
+}
+
+
+.brand h1 {
+
+    font-size:
+        clamp(21px, 4vw, 27px);
+
+    letter-spacing: 1px;
+}
+
+
+.brand h1 span {
+
+    color: #8cebd5;
+}
+
+
+.brand p {
+
+    margin-top: 3px;
+
+    font-size: 12px;
+
+    color: #aab5c5;
+}
+
+
+.offline {
+
+    margin-left: 8px;
+
+    padding: 6px 11px;
+
+    border-radius: 20px;
+
+    font-size: 10px;
+    font-weight: bold;
+
+    color: #ffcf5b;
+
+    border:
+        1px solid
+        rgba(255,190,50,0.35);
+
+    background:
+        rgba(255,160,0,0.12);
+}
+
+
+/* ===============================
+   SCREEN
+================================ */
+
+.screen {
+
+    width: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+/* ===============================
+   SETUP
+================================ */
+
+.setup-screen {
+
+    padding:
+        20px 12px;
+}
+
+
+.setup-card {
+
+    width:
+        min(440px, 92%);
+
+    padding:
+        clamp(10px, 2vw, 16px);
+
+    border-radius: 18px;
+
+    background:
+        rgba(24,38,58,0.92);
+
+    border:
+        1px solid
+        rgba(130,165,200,0.3);
+
+    box-shadow:
+        0 15px 40px
+        rgba(0,0,0,0.35);
+}
+
+
+.section-title {
+
+    width: fit-content;
+
+    margin: auto;
+
+    padding:
+        8px 20px;
+
+    border-radius: 20px;
+
+    font-size:
+        clamp(15px, 3vw, 19px);
+
+    background:
+        linear-gradient(
+            135deg,
+            #273c73,
+            #4666b5
+        );
+}
+
+
+.instruction {
+
+    text-align: center;
+
+    margin: 14px 0;
+
+    font-size:
+        clamp(11px, 2vw, 14px);
+
+    color: #c4ccd8;
+}
+
+
+/* ===============================
+   NEXT CARD
+================================ */
+
+.next-card {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 12px;
+
+    border-radius: 18px;
+
+    background:
+        rgba(45,62,84,0.8);
+}
+
+
+.number-badge {
+
+    min-width: 45px;
+    height: 45px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 13px;
+
+    color: #111827;
+
+    font-size: 20px;
+    font-weight: bold;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ffd83d,
+            #ff9500
+        );
+}
+
+
+.next-info {
+
+    display: flex;
+
+    flex-direction: column;
+
+    min-width: 100px;
+}
+
+
+.next-info span {
+
+    font-size: 9px;
+
+    color: #b7c1d0;
+}
+
+
+.next-info strong {
+
+    margin-top: 5px;
+
+    font-size: 12px;
+
+    color: #ffd457;
+}
+
+
+.progress-bar {
+
+    flex: 1;
+
+    height: 8px;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    background: #101a2a;
+}
+
+
+#progressFill {
+
+    width: 0%;
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #54e89a,
+            #4cc9f0
+        );
+
+    transition: 0.3s;
+}
+
+
+/* ===============================
+   BUTTONS
+================================ */
+
+.setup-buttons {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 8px;
+
+    margin: 14px 0;
+}
+
+
+.setup-buttons button {
+
+    padding:
+        clamp(9px, 2vw, 13px)
+        5px;
+
+    border-radius: 12px;
+
+    border:
+        1px solid
+        rgba(255,255,255,0.12);
+
+    color: white;
+
+    font-size:
+        clamp(10px, 2vw, 13px);
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+
+.random-btn {
+
+    background:
+        linear-gradient(
+            135deg,
+            #635bdf,
+            #4033bb
+        );
+}
+
+
+.order-btn {
+
+    background: #2b3b50;
+}
+
+
+.clear-btn {
+
+    background:
+        linear-gradient(
+            135deg,
+            #742036,
+            #40101f
+        );
+}
+
+
+/* ===============================
+   SETUP GRID
+================================ */
+
+.setup-grid {
+
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(5, 1fr);
+
+    gap:
+        clamp(3px, 1vw, 6px);
+}
+
+
+.setup-cell {
+
+    aspect-ratio: 1;
+    min-height: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius:
+        clamp(6px, 1.5vw, 10px);
+
+    font-size:
+        clamp(12px, 3vw, 18px);
+
+    font-weight: bold;
+
+    color: #ffd04d;
+
+    cursor: pointer;
+
+    background:
+        #202e42;
+
+    border:
+        2px dashed
+        rgba(150,180,210,0.35);
+
+    transition: 0.2s;
+}
+
+
+.setup-cell:hover {
+
+    transform: scale(1.04);
+
+    border-color: #728cff;
+}
+
+
+.setup-cell.filled {
+
+    border-style: solid;
+
+    border-color: #526dc4;
+}
+
+
+/* ===============================
+   START BUTTON
+================================ */
+
+.start-btn {
+
+    width: 100%;
+
+    margin-top: 15px;
+
+    padding:
+        clamp(11px, 2vw, 15px);
+
+    border: none;
+
+    border-radius: 14px;
+
+    font-size:
+        clamp(12px, 2vw, 15px);
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    color: #8b98a9;
+
+    background: #263448;
+}
+
+
+.start-btn:enabled {
+
+    color: #111827;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ffd53e,
+            #ff9b00
+        );
+
+    box-shadow:
+        0 0 18px
+        rgba(255,165,0,0.3);
+}
+
+
+/* ===============================
+   TURN SCREEN
+================================ */
+
+.turn-screen {
+
+    min-height: 65vh;
+
+    padding: 15px;
+}
+
+
+.turn-card {
+
+    width:
+        min(420px, 100%);
+
+    padding: 30px 22px;
+
+    text-align: center;
+
+    border-radius: 25px;
+
+    background:
+        rgba(25,38,58,0.95);
+
+    border:
+        1px solid
+        rgba(150,180,210,0.25);
+}
+
+
+.turn-card h2 {
+
+    font-size:
+        clamp(18px, 4vw, 24px);
+
+    color: #ffd04d;
+}
+
+
+.turn-card p {
+
+    margin: 15px 0 20px;
+
+    font-size: 13px;
+
+    color: #b8c2d1;
+}
+
+
+.turn-card button {
+
+    width: 100%;
+
+    margin: 7px 0;
+
+    padding: 15px;
+
+    border: none;
+
+    border-radius: 15px;
+
+    color: white;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+
+.my-turn-btn {
+
+    background:
+        linear-gradient(
+            135deg,
+            #18c98c,
+            #078060
+        );
+}
+
+
+.opponent-turn-btn {
+
+    background:
+        linear-gradient(
+            135deg,
+            #ff476b,
+            #c91346
+        );
+}
+
+
+/* ===============================
+   GAME SCREEN
+================================ */
+
+.game-screen {
+
+    flex-direction: column;
+
+    padding:
+        12px 10px 20px;
+}
+
+
+/* ===============================
+   BINGO STATUS
+================================ */
+
+.bingo-status {
+
+    width:
+        min(520px, 96vw);
+
+    padding:
+        clamp(10px, 2vw, 15px);
+
+    border-radius: 20px;
+
+    background:
+        rgba(23,35,55,0.92);
+
+    border:
+        1px solid
+        rgba(100,140,180,0.35);
+}
+
+
+.status-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-bottom: 9px;
+
+    font-size:
+        clamp(11px, 2.5vw, 15px);
+
+    font-weight: bold;
+}
+
+
+#lineCount {
+
+    color: #ffca35;
+}
+
+
+.bingo-letters {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(5, 1fr);
+
+    gap:
+        clamp(5px, 1vw, 9px);
+}
+
+
+.bingo-letter {
+
+    aspect-ratio: 1.1;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius:
+        clamp(8px, 2vw, 15px);
+
+    font-size:
+        clamp(22px, 7vw, 35px);
+
+    font-weight: bold;
+
+    color: #8c99aa;
+
+    background: #121d2d;
+
+    border:
+        2px solid #304158;
+
+    transition: 0.4s;
+}
+
+
+.bingo-letter.active {
+
+    color: #101827;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ffc400,
+            #ff8500
+        );
+
+    border-color: #ffe06b;
+
+    box-shadow:
+        0 0 18px
+        rgba(255,175,0,0.5);
+}
+
+
+/* ===============================
+   TURN INDICATOR
+================================ */
+
+.turn-indicator {
+
+    margin: 10px 0;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    font-size:
+        clamp(11px, 2vw, 14px);
+
+    font-weight: bold;
+}
+
+
+.turn-dot {
+
+    width: 10px;
+    height: 10px;
+
+    border-radius: 50%;
+}
+
+
+.my-turn {
+
+    color: #6df1a2;
+}
+
+
+.my-turn .turn-dot {
+
+    background: #2ee890;
+
+    box-shadow:
+        0 0 10px #2ee890;
+}
+
+
+.opponent-turn {
+
+    color: #ff8b80;
+}
+
+
+.opponent-turn .turn-dot {
+
+    background: #ff6255;
+
+    box-shadow:
+        0 0 10px #ff6255;
+}
+
+
+/* ===============================
+   GAME BOARD
+   IMPORTANT RESPONSIVE SIZE
+================================ */
+
+.game-board {
+
+    position: relative;
+
+    width:
+        min(
+            520px,
+            calc(100vw - 20px),
+            calc(100vh - 260px)
+        );
+
+    padding:
+        clamp(6px, 1.5vw, 12px);
+
+    border-radius: 22px;
+
+    background:
+        rgba(18,31,49,0.96);
+
+    border:
+        2px solid
+        rgba(78,113,145,0.4);
+
+    box-shadow:
+        0 15px 35px
+        rgba(0,0,0,0.35);
+}
+
+
+/* ===============================
+   GAME GRID
+================================ */
+
+.game-grid {
+
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(5, 1fr);
+
+    gap:
+        clamp(4px, 1.2vw, 9px);
+}
+
+
+/* ===============================
+   GAME CELL
+================================ */
+
+.game-cell {
+
+    aspect-ratio: 1;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius:
+        clamp(8px, 2vw, 16px);
+
+    font-size:
+        clamp(14px, 5vw, 27px);
+
+    font-weight: bold;
+
+    color: #ffd04c;
+
+    cursor: pointer;
+
+    background: #202e42;
+
+    border:
+        2px solid #344760;
+
+    transition: 0.2s;
+}
+
+
+.game-cell:hover:not(.marked-my):not(.marked-opponent) {
+
+    transform: scale(1.04);
+
+    border-color: #8ba0bb;
+}
+
+
+/* ===============================
+   GREEN MARK
+================================ */
+
+.game-cell.marked-my {
+
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #20d69a,
+            #078c67
+        );
+
+    border-color: #66f2bd;
+
+    box-shadow:
+        0 0 14px
+        rgba(25,210,150,0.45);
+}
+
+
+/* ===============================
+   RED MARK
+================================ */
+
+.game-cell.marked-opponent {
+
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ff5274,
+            #cf1749
+        );
+
+    border-color: #ff8a9f;
+
+    box-shadow:
+        0 0 14px
+        rgba(255,50,100,0.4);
+}
+
+
+/* ===============================
+   WINNING LINE
+================================ */
+
+.winning-line {
+
+    position: absolute;
+
+    height:
+        clamp(5px, 1vw, 9px);
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #00e5ff,
+            #ff00d4,
+            #ffd000
+        );
+
+    transform-origin: left center;
+
+    z-index: 50;
+
+    pointer-events: none;
+
+    box-shadow:
+
+        0 0 8px #00e5ff,
+
+        0 0 15px #ff00d4,
+
+        0 0 25px #ffd000;
+
+    animation:
+        lineAppear 0.35s ease-out;
+}
+
+
+@keyframes lineAppear {
+
+    from {
+
+        opacity: 0;
+
+    }
+
+    to {
+
+        opacity: 1;
+
+    }
+
+}
+
+
+/* ===============================
+   NEW GAME
+================================ */
+
+.new-game-btn {
+
+    margin-top: 12px;
+
+    padding: 11px 22px;
+
+    border: none;
+
+    border-radius: 13px;
+
+    cursor: pointer;
+
+    font-weight: bold;
+
+    color: #121826;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ffe34f,
+            #ffad00
+        );
+}
+
+
+/* ===============================
+   WINNER POPUP
+================================ */
+
+.winner-popup {
+
+    position: fixed;
+
+    inset: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    z-index: 999;
+
+    background:
+        rgba(0,0,0,0.78);
+
+    backdrop-filter: blur(8px);
+}
+
+
+.winner-box {
+
+    width:
+        min(400px, 100%);
+
+    padding: 35px 25px;
+
+    text-align: center;
+
+    border-radius: 28px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #1d2d46,
+            #111a2a
+        );
+
+    border:
+        2px solid #ffc400;
+
+    box-shadow:
+        0 0 40px
+        rgba(255,190,0,0.45);
+}
+
+
+.trophy {
+
+    font-size: 60px;
+}
+
+
+.winner-box h1 {
+
+    margin-top: 8px;
+
+    font-size: 40px;
+
+    color: #ffc400;
+}
+
+
+.winner-box h2 {
+
+    margin-top: 10px;
+
+    color: #63f0a8;
+}
+
+
+.winner-box p {
+
+    margin-top: 12px;
+
+    color: #bdc8d9;
+}
+
+
+.winner-box button {
+
+    margin-top: 22px;
+
+    padding: 13px 25px;
+
+    border: none;
+
+    border-radius: 13px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ffc400,
+            #ff8500
+        );
+}
+
+
+/* ===============================
+   MOBILE HEIGHT FIX
+================================ */
+
+@media (max-width: 600px) {
+
+    .header {
+
+        padding: 12px 0 8px;
+    }
+
+
+    .logo {
+
+        width: 40px;
+        height: 40px;
+
+        font-size: 20px;
+    }
+
+
+    .brand p {
+
+        font-size: 10px;
+    }
+
+
+    .offline {
+
+        display: none;
+    }
+
+
+    .setup-screen {
+
+        padding: 10px;
+    }
+
+
+    .game-screen {
+
+        padding-top: 8px;
+    }
+
+}
+
+
+/* SHORT HEIGHT LAPTOP / MOBILE */
+
+@media (max-height: 750px) {
+
+    .header {
+
+        padding: 10px 0 7px;
+    }
+
+
+    .brand p {
+
+        display: none;
+    }
+
+
+    .game-screen {
+
+        padding-top: 6px;
+    }
+
+
+    .turn-indicator {
+
+        margin: 6px 0;
+    }
+
+
+    .new-game-btn {
+
+        margin-top: 8px;
+
+        padding: 8px 18px;
+    }
+
+}
