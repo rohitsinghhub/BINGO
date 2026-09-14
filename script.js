@@ -2556,7 +2556,7 @@ function listenToRoom() {
                             } else {
 
                                 winnerText.innerText =
-                                    "🏆 OPPONENT WINS!";
+                                    " 😭YOU LOSS";
                             }
 
 
