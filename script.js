@@ -1657,7 +1657,7 @@ function showWinner() {
         } else {
 
             winnerText.innerText =
-                "🏆 OPPONENT WINS!";
+                "😭YOU LOST";
         }
 
     } else {
@@ -1674,7 +1674,7 @@ function showWinner() {
         } else {
 
             winnerText.innerText =
-                "🏆 OPPONENT WINS!";
+                "😭YOU LOST";
         }
     }
 
