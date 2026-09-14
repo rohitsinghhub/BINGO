@@ -5,12 +5,17 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>BINGO 5×5</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 
 </head>
 
@@ -21,7 +26,9 @@
 <div class="app">
 
 
-    <!-- HEADER -->
+    <!-- ========================================
+         HEADER
+    ========================================= -->
 
     <header class="header">
 
@@ -30,6 +37,7 @@
             <div class="logo">
                 ▦
             </div>
+
 
             <div>
 
@@ -43,6 +51,7 @@
 
             </div>
 
+
             <div class="offline">
                 OFFLINE
             </div>
@@ -53,11 +62,117 @@
 
 
 
-    <!-- SETUP SCREEN -->
+    <!-- ========================================
+         MODE SCREEN
+    ========================================= -->
+
+    <section
+        id="modeScreen"
+        class="screen mode-screen"
+    >
+
+        <div class="mode-card">
+
+            <h1>
+                🎮 BINGO 5×5
+            </h1>
+
+            <p>
+                Choose how you want to play
+            </p>
+
+
+            <button
+                type="button"
+                id="offlineBtn"
+                class="mode-btn"
+            >
+                🎲 PLAY OFFLINE
+            </button>
+
+
+            <button
+                type="button"
+                id="multiplayerBtn"
+                class="mode-btn"
+            >
+                🌐 CREATE / JOIN ROOM
+            </button>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ========================================
+         ROOM SCREEN
+    ========================================= -->
+
+    <section
+        id="roomScreen"
+        class="screen room-screen hidden"
+    >
+
+        <div class="room-card">
+
+            <h2>
+                🎮 BINGO ROOM
+            </h2>
+
+
+            <p>
+                4-digit Room ID enter karo
+            </p>
+
+
+            <input
+                type="text"
+                id="roomIdInput"
+                class="room-input"
+                maxlength="4"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                placeholder="1234"
+            >
+
+
+            <button
+                type="button"
+                id="createRoomBtn"
+                class="room-btn"
+            >
+                CREATE ROOM
+            </button>
+
+
+            <button
+                type="button"
+                id="joinRoomBtn"
+                class="room-btn"
+            >
+                JOIN ROOM
+            </button>
+
+
+            <p
+                id="roomMessage"
+                class="room-message"
+            ></p>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ========================================
+         SETUP SCREEN
+    ========================================= -->
 
     <section
         id="setupScreen"
-        class="screen setup-screen"
+        class="screen setup-screen hidden"
     >
 
         <div class="setup-card">
@@ -76,6 +191,8 @@
             </p>
 
 
+
+            <!-- NEXT NUMBER -->
 
             <div class="next-card">
 
@@ -112,11 +229,14 @@
 
 
 
+            <!-- SETUP BUTTONS -->
+
             <div class="setup-buttons">
 
                 <button
                     id="randomBtn"
                     class="random-btn"
+                    type="button"
                 >
                     🔀 Random
                 </button>
@@ -125,6 +245,7 @@
                 <button
                     id="orderBtn"
                     class="order-btn"
+                    type="button"
                 >
                     ↕ 1 to 25
                 </button>
@@ -133,6 +254,7 @@
                 <button
                     id="clearBtn"
                     class="clear-btn"
+                    type="button"
                 >
                     ↻ Clear
                 </button>
@@ -150,14 +272,15 @@
 
 
 
+            <!-- START GAME -->
+
             <button
                 id="startBtn"
                 class="start-btn"
+                type="button"
                 disabled
             >
-
                 Fill Grid First
-
             </button>
 
 
@@ -167,7 +290,9 @@
 
 
 
-    <!-- TURN SCREEN -->
+    <!-- ========================================
+         TURN SCREEN
+    ========================================= -->
 
     <section
         id="turnScreen"
@@ -189,20 +314,18 @@
             <button
                 id="myTurnFirst"
                 class="my-turn-btn"
+                type="button"
             >
-
                 🟢 MY TURN FIRST
-
             </button>
 
 
             <button
                 id="opponentFirst"
                 class="opponent-turn-btn"
+                type="button"
             >
-
                 🔴 OPPONENT FIRST
-
             </button>
 
         </div>
@@ -211,7 +334,9 @@
 
 
 
-    <!-- GAME SCREEN -->
+    <!-- ========================================
+         GAME SCREEN
+    ========================================= -->
 
     <section
         id="gameScreen"
@@ -222,7 +347,6 @@
         <!-- BINGO STATUS -->
 
         <div class="bingo-status">
-
 
             <div class="status-header">
 
@@ -241,24 +365,33 @@
 
             <div class="bingo-letters">
 
-                <div class="bingo-letter">B</div>
+                <div class="bingo-letter">
+                    B
+                </div>
 
-                <div class="bingo-letter">I</div>
+                <div class="bingo-letter">
+                    I
+                </div>
 
-                <div class="bingo-letter">N</div>
+                <div class="bingo-letter">
+                    N
+                </div>
 
-                <div class="bingo-letter">G</div>
+                <div class="bingo-letter">
+                    G
+                </div>
 
-                <div class="bingo-letter">O</div>
+                <div class="bingo-letter">
+                    O
+                </div>
 
             </div>
-
 
         </div>
 
 
 
-        <!-- TURN -->
+        <!-- TURN INDICATOR -->
 
         <div
             id="turnIndicator"
@@ -287,25 +420,32 @@
         </div>
 
 
+
+        <!-- NEW GAME -->
+
         <button
             id="newGameBtn"
             class="new-game-btn"
+            type="button"
         >
-
             NEW GAME
-
         </button>
 
 
-    </section>
+        <!-- REVERSE BUTTON
+             JavaScript automatically
+             creates this button here -->
 
+    </section>
 
 
 </div>
 
 
 
-<!-- WINNER POPUP -->
+<!-- ========================================
+     WINNER POPUP
+========================================= -->
 
 <div
     id="winnerPopup"
@@ -314,6 +454,7 @@
 
 
     <div class="winner-box">
+
 
         <div class="trophy">
             🏆
@@ -335,11 +476,13 @@
         </p>
 
 
-        <button id="winnerNewGame">
-
+        <button
+            id="winnerNewGame"
+            type="button"
+        >
             PLAY AGAIN
-
         </button>
+
 
     </div>
 
@@ -348,7 +491,14 @@
 
 
 
-<script src="script.js"></script>
+<!-- ========================================
+     JAVASCRIPT
+========================================= -->
+
+<script
+    type="module"
+    src="script.js"
+></script>
 
 
 </body>

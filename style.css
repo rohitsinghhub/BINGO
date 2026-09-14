@@ -1,4 +1,4 @@
-/* ===============================
+* ===============================
    RESET
 ================================ */
 
@@ -1217,4 +1217,205 @@ button {
         padding: 8px 18px;
     }
 
+}
+/* ========================================
+   MULTIPLAYER ROOM
+======================================== */
+
+.room-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.room-card {
+    width: min(400px, 92vw);
+    padding: 25px;
+    text-align: center;
+    background: #151a22;
+    border: 1px solid #2d3542;
+    border-radius: 18px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+}
+
+.room-card h2 {
+    margin-bottom: 10px;
+}
+
+.room-card p {
+    margin-bottom: 18px;
+    opacity: 0.7;
+}
+
+.room-input {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+    text-align: center;
+    font-size: 22px;
+    letter-spacing: 6px;
+    color: white;
+    background: #0d1117;
+    border: 1px solid #3a4352;
+    border-radius: 10px;
+    outline: none;
+}
+
+.room-btn {
+    width: 100%;
+    padding: 13px;
+    margin-top: 8px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.room-message {
+    margin-top: 15px;
+    min-height: 20px;
+}
+
+/* ========================================
+   MODE SCREEN
+   ======================================== */
+
+.mode-screen {
+    padding: 8px 12px;
+}
+
+.mode-card {
+    text-align: center;
+}
+
+.mode-card h1 {
+    font-size: 32px;
+    margin-bottom: 2px;
+}
+
+.mode-card p {
+    margin-bottom: 2px;
+}
+
+.mode-btn {
+    cursor: pointer;
+}
+
+/* ========================================
+   MULTIPLAYER ROOM
+   ======================================== */
+
+.room-screen {
+    min-height: auto;
+    padding: 8px 12px;
+    align-items: flex-start;
+}
+
+.room-card {
+    width: min(400px, 92vw);
+    padding: 25px;
+    text-align: center;
+    background: #151a22;
+    border: 1px solid #2d3542;
+    border-radius: 18px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+}
+
+.room-card h2 {
+    margin-bottom: 10px;
+}
+
+.room-card > p:not(.room-message) {
+    margin-bottom: 18px;
+    opacity: 0.7;
+}
+
+.room-actions {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0 6px;
+    align-items: center;
+}
+
+.room-input {
+    width: 100%;
+    min-width: 0;
+    padding: 8px;
+    box-sizing: border-box;
+    text-align: left;
+    font-size: 16px;
+    color: #111;
+    background: white;
+    border: 1px solid #777;
+    border-radius: 2px;
+    outline: none;
+}
+
+.room-input:focus {
+    border-color: #4d7cff;
+}
+
+.room-btn {
+    padding: 7px 8px;
+    border: 1px solid #888;
+    border-radius: 2px;
+    cursor: pointer;
+    font-weight: normal;
+    font-size: 13px;
+    color: #111;
+    background: #f3f3f3;
+}
+
+.join-room-btn {
+    grid-column: 2;
+    justify-self: center;
+    margin-top: 2px;
+}
+
+.room-message {
+    margin-top: 15px;
+    min-height: 20px;
+}
+
+@media (max-width: 600px) {
+    .room-card {
+        width: min(400px, 92vw);
+    }
+
+    .room-actions {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .join-room-btn {
+        grid-column: 1;
+        justify-self: center;
+        margin-top: 0;
+    }
+}
+/* ========================================
+   REVERSE LAST MOVE
+======================================== */
+.reverse-btn {
+    margin-top: 10px;
+    padding: 10px 18px;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 13px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(135deg, #596579, #303b4c);
+}
+
+.reverse-btn:hover:not(:disabled) {
+    transform: scale(1.03);
+}
+
+.reverse-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
 }
