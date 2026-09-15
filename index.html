@@ -12,6 +12,21 @@
 
     <title>BINGO 5×5</title>
 
+    <!-- Google Font (Poppins) -->
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
     <link
         rel="stylesheet"
         href="style.css"
@@ -21,6 +36,23 @@
 
 
 <body>
+
+
+<!-- ========================================
+     BACKGROUND DECORATION
+========================================= -->
+
+<div class="bg-balls">
+    <span class="ball ball-yellow">7</span>
+    <span class="ball ball-red">23</span>
+    <span class="ball ball-blue">12</span>
+    <span class="ball ball-green">5</span>
+    <span class="ball ball-purple">33</span>
+</div>
+
+<div class="bg-glow bg-glow-1"></div>
+<div class="bg-glow bg-glow-2"></div>
+
 
 
 <div class="app">
@@ -35,26 +67,48 @@
         <div class="brand">
 
             <div class="logo">
-                ▦
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+                    <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                    <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                </svg>
             </div>
 
-
-            <div>
-
+            <div class="brand-text">
                 <h1>
                     BINGO <span>5×5</span>
                 </h1>
-
                 <p>
                     2-Player Paper Replacement
                 </p>
-
             </div>
-
 
             <div class="offline">
+                <span class="dot"></span>
                 OFFLINE
             </div>
+
+        </div>
+
+
+        <div class="nav-links">
+
+            <a href="#">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="6" width="20" height="12" rx="4"/>
+                    <path d="M8 12h2M14 12h2M7 9v6M17 9v6"/>
+                </svg>
+                How to Play
+            </a>
+
+            <a href="#">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 16v-4M12 8h.01"/>
+                </svg>
+                About
+            </a>
 
         </div>
 
@@ -71,33 +125,72 @@
         class="screen mode-screen"
     >
 
+        <!-- Side Slogans -->
+        <div class="side-slogan left">
+            <p>Same<br>Game<br>Bigger<br>Fun!</p>
+            <span class="underline"></span>
+        </div>
+
+        <div class="side-slogan right">
+            <p>Play<br>Connect<br>Win!</p>
+            <span class="underline"></span>
+        </div>
+
+
         <div class="mode-card">
 
-            <h1>
-                🎮 BINGO 5×5
+            <div class="mode-icon-wrap">
+                <div class="bingo-mini-grid">
+
+                    <span class="mini-cell red"></span>
+                    <span class="mini-cell yellow"></span>
+                    <span class="mini-cell green"></span>
+                    <span class="mini-cell blue"></span>
+
+                    <span class="mini-cell green"></span>
+                    <span class="mini-cell orange"></span>
+                    <span class="mini-cell star">★</span>
+                    <span class="mini-cell blue"></span>
+
+                    <span class="mini-cell yellow"></span>
+                    <span class="mini-cell red"></span>
+                    <span class="mini-cell green"></span>
+                    <span class="mini-cell orange"></span>
+
+                </div>
+            </div>
+
+            <h1 class="mode-title">
+                BINGO <span class="gold">5×5</span>
             </h1>
 
-            <p>
+            <p class="mode-sub">
                 Choose how you want to play
             </p>
 
 
-            <button
-                type="button"
-                id="offlineBtn"
-                class="mode-btn"
-            >
-                🎲 PLAY OFFLINE
-            </button>
+            <div class="mode-buttons">
+
+                <button
+                    type="button"
+                    id="offlineBtn"
+                    class="mode-btn mode-btn-offline"
+                >
+                    <span class="btn-icon">▶</span>
+                    PLAY OFFLINE
+                </button>
 
 
-            <button
-                type="button"
-                id="multiplayerBtn"
-                class="mode-btn"
-            >
-                🌐 CREATE / JOIN ROOM
-            </button>
+                <button
+                    type="button"
+                    id="multiplayerBtn"
+                    class="mode-btn mode-btn-online"
+                >
+                    <span class="btn-icon">👥</span>
+                    CREATE / JOIN ROOM
+                </button>
+
+            </div>
 
         </div>
 
@@ -120,7 +213,6 @@
                 🎮 BINGO ROOM
             </h2>
 
-
             <p>
                 4-digit Room ID enter karo
             </p>
@@ -133,14 +225,14 @@
                 maxlength="4"
                 inputmode="numeric"
                 pattern="[0-9]*"
-                placeholder="1234"
+                placeholder="1 2 3 4"
             >
 
 
             <button
                 type="button"
                 id="createRoomBtn"
-                class="room-btn"
+                class="room-btn room-btn-primary"
             >
                 CREATE ROOM
             </button>
@@ -149,7 +241,7 @@
             <button
                 type="button"
                 id="joinRoomBtn"
-                class="room-btn"
+                class="room-btn room-btn-secondary"
             >
                 JOIN ROOM
             </button>
@@ -177,17 +269,13 @@
 
         <div class="setup-card">
 
-
             <h2 class="section-title">
                 🎲 GRID SETUP
             </h2>
 
-
             <p class="instruction">
-
                 Tap empty cells to place numbers
                 from 1 to 25
-
             </p>
 
 
@@ -203,26 +291,15 @@
                     1
                 </div>
 
-
                 <div class="next-info">
-
-                    <span>
-                        NEXT NUMBER
-                    </span>
-
+                    <span>NEXT NUMBER</span>
                     <strong id="fillCount">
                         0 / 25 Filled
                     </strong>
-
                 </div>
 
-
                 <div class="progress-bar">
-
-                    <div
-                        id="progressFill"
-                    ></div>
-
+                    <div id="progressFill"></div>
                 </div>
 
             </div>
@@ -241,7 +318,6 @@
                     🔀 Random
                 </button>
 
-
                 <button
                     id="orderBtn"
                     class="order-btn"
@@ -249,7 +325,6 @@
                 >
                     ↕ 1 to 25
                 </button>
-
 
                 <button
                     id="clearBtn"
@@ -283,7 +358,6 @@
                 Fill Grid First
             </button>
 
-
         </div>
 
     </section>
@@ -305,11 +379,9 @@
                 WHO PLAYS FIRST?
             </h2>
 
-
             <p>
                 Choose who will make the first move
             </p>
-
 
             <button
                 id="myTurnFirst"
@@ -318,7 +390,6 @@
             >
                 🟢 MY TURN FIRST
             </button>
-
 
             <button
                 id="opponentFirst"
@@ -343,48 +414,21 @@
         class="screen game-screen hidden"
     >
 
-
         <!-- BINGO STATUS -->
 
         <div class="bingo-status">
 
             <div class="status-header">
-
-                <span>
-                    🏆 B-I-N-G-O STATUS
-                </span>
-
-
-                <span id="lineCount">
-                    0 / 5 Lines
-                </span>
-
+                <span>🏆 B-I-N-G-O STATUS</span>
+                <span id="lineCount">0 / 5 Lines</span>
             </div>
 
-
-
             <div class="bingo-letters">
-
-                <div class="bingo-letter">
-                    B
-                </div>
-
-                <div class="bingo-letter">
-                    I
-                </div>
-
-                <div class="bingo-letter">
-                    N
-                </div>
-
-                <div class="bingo-letter">
-                    G
-                </div>
-
-                <div class="bingo-letter">
-                    O
-                </div>
-
+                <div class="bingo-letter">B</div>
+                <div class="bingo-letter">I</div>
+                <div class="bingo-letter">N</div>
+                <div class="bingo-letter">G</div>
+                <div class="bingo-letter">O</div>
             </div>
 
         </div>
@@ -397,13 +441,8 @@
             id="turnIndicator"
             class="turn-indicator my-turn"
         >
-
             <span class="turn-dot"></span>
-
-            <span id="turnText">
-                MY TURN
-            </span>
-
+            <span id="turnText">MY TURN</span>
         </div>
 
 
@@ -411,12 +450,10 @@
         <!-- GAME BOARD -->
 
         <div class="game-board">
-
             <div
                 id="gameGrid"
                 class="game-grid"
             ></div>
-
         </div>
 
 
@@ -430,11 +467,6 @@
         >
             NEW GAME
         </button>
-
-
-        <!-- REVERSE BUTTON
-             JavaScript automatically
-             creates this button here -->
 
     </section>
 
@@ -452,29 +484,23 @@
     class="winner-popup hidden"
 >
 
-
     <div class="winner-box">
-
 
         <div class="trophy">
             🏆
         </div>
 
-
         <h1>
             BINGO!
         </h1>
-
 
         <h2 id="winnerText">
             YOU WIN!
         </h2>
 
-
         <p>
             5 winning lines completed
         </p>
-
 
         <button
             id="winnerNewGame"
@@ -483,9 +509,7 @@
             PLAY AGAIN
         </button>
 
-
     </div>
-
 
 </div>
 
