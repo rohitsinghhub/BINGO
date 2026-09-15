@@ -94,7 +94,7 @@
 
         <div class="nav-links">
 
-            <a href="#">
+            <a href="#" id="howToPlayLink">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="2" y="6" width="20" height="12" rx="4"/>
                     <path d="M8 12h2M14 12h2M7 9v6M17 9v6"/>
@@ -102,7 +102,7 @@
                 How to Play
             </a>
 
-            <a href="#">
+            <a href="#" id="aboutLink">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"/>
                     <path d="M12 16v-4M12 8h.01"/>
@@ -511,6 +511,111 @@
 
     </div>
 
+</div>
+
+
+
+<!-- ========================================
+     HOW TO PLAY MODAL
+========================================= -->
+
+<div id="howToPlayModal" class="info-modal hidden">
+    <div class="info-modal-box">
+
+        <button class="info-modal-close" id="closeHowToPlay" type="button">✕</button>
+
+        <div class="info-modal-icon">🎮</div>
+
+        <h2>How to Play</h2>
+
+        <div class="info-modal-content">
+
+            <div class="info-step">
+                <span class="step-num">1</span>
+                <div>
+                    <strong>Choose Mode</strong>
+                    <p>PLAY OFFLINE (same device) ya CREATE/JOIN ROOM (online) select karo.</p>
+                </div>
+            </div>
+
+            <div class="info-step">
+                <span class="step-num">2</span>
+                <div>
+                    <strong>Fill Your Grid</strong>
+                    <p>Apne 5×5 grid me 1 se 25 numbers place karo. Random ya 1-to-25 auto-fill bhi use kar sakte ho.</p>
+                </div>
+            </div>
+
+            <div class="info-step">
+                <span class="step-num">3</span>
+                <div>
+                    <strong>Choose First Turn</strong>
+                    <p>Decide karo kaun pehla move karega — My Turn ya Opponent.</p>
+                </div>
+            </div>
+
+            <div class="info-step">
+                <span class="step-num">4</span>
+                <div>
+                    <strong>Mark Numbers</strong>
+                    <p>Apne turn pe koi bhi number tap karo. Green = your mark, Red = opponent's mark.</p>
+                </div>
+            </div>
+
+            <div class="info-step">
+                <span class="step-num">5</span>
+                <div>
+                    <strong>Win the Game</strong>
+                    <p>5 complete lines (row, column, ya diagonal) banao aur BINGO! 🏆</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+
+<!-- ========================================
+     ABOUT MODAL
+========================================= -->
+
+<div id="aboutModal" class="info-modal hidden">
+    <div class="info-modal-box">
+
+        <button class="info-modal-close" id="closeAbout" type="button">✕</button>
+
+        <div class="info-modal-icon">ℹ️</div>
+
+        <h2>About BINGO 5×5</h2>
+
+        <div class="info-modal-content">
+
+            <p class="about-text">
+                <strong>BINGO 5×5</strong> ek modern paper-replacement bingo game hai,
+                jisme aap dost ke saath same device pe ya online room me khel sakte ho.
+            </p>
+
+            <p class="about-text">
+                Traditional bingo ka classic 5×5 format, clean UI, real-time turn system,
+                aur multiple winning lines detection ke saath.
+            </p>
+
+            <div class="about-badges">
+                <span>🎯 5×5 Grid</span>
+                <span>👥 2 Players</span>
+                <span>📱 Offline + Online</span>
+                <span>🏆 5 Winning Lines</span>
+            </div>
+
+            <p class="about-footer">
+                Made with ❤️ for bingo lovers
+            </p>
+
+        </div>
+
+    </div>
 </div>
 
 

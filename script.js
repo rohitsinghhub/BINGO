@@ -1508,3 +1508,60 @@ setupScreen.classList.add("hidden");
 turnScreen.classList.add("hidden");
 gameScreen.classList.add("hidden");
 winnerPopup.classList.add("hidden");
+/* ========================================
+   INFO MODALS (How to Play / About)
+========================================= */
+
+const howToPlayModal = document.getElementById("howToPlayModal");
+const aboutModal     = document.getElementById("aboutModal");
+
+const howToPlayLink  = document.getElementById("howToPlayLink");
+const aboutLink      = document.getElementById("aboutLink");
+
+const closeHowToPlay = document.getElementById("closeHowToPlay");
+const closeAbout     = document.getElementById("closeAbout");
+
+
+function openModal(modal) {
+    if (!modal) return;
+    modal.classList.remove("hidden");
+}
+
+function closeModal(modal) {
+    if (!modal) return;
+    modal.classList.add("hidden");
+}
+
+
+howToPlayLink?.addEventListener("click", (e) => {
+    e.preventDefault();
+    openModal(howToPlayModal);
+});
+
+aboutLink?.addEventListener("click", (e) => {
+    e.preventDefault();
+    openModal(aboutModal);
+});
+
+closeHowToPlay?.addEventListener("click", () => {
+    closeModal(howToPlayModal);
+});
+
+closeAbout?.addEventListener("click", () => {
+    closeModal(aboutModal);
+});
+
+[howToPlayModal, aboutModal].forEach((modal) => {
+    modal?.addEventListener("click", (e) => {
+        if (e.target === modal) {
+            closeModal(modal);
+        }
+    });
+});
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+        closeModal(howToPlayModal);
+        closeModal(aboutModal);
+    }
+});
