@@ -11,7 +11,9 @@ import {
     get,
     update,
     onValue,
-    runTransaction
+    runTransaction,
+    onDisconnect,
+    remove
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
 
 
@@ -44,126 +46,56 @@ const db = getDatabase(app);
 // ======================================================
 
 // MODE
-
-const modeScreen =
-    document.getElementById("modeScreen");
-
-const offlineBtn =
-    document.getElementById("offlineBtn");
-
-const multiplayerBtn =
-    document.getElementById("multiplayerBtn");
-
+const modeScreen = document.getElementById("modeScreen");
+const offlineBtn = document.getElementById("offlineBtn");
+const multiplayerBtn = document.getElementById("multiplayerBtn");
 
 // ROOM
-
-const roomScreen =
-    document.getElementById("roomScreen");
-
-const roomIdInput =
-    document.getElementById("roomIdInput");
-
-const createRoomBtn =
-    document.getElementById("createRoomBtn");
-
-const joinRoomBtn =
-    document.getElementById("joinRoomBtn");
-
-const roomMessage =
-    document.getElementById("roomMessage");
-
+const roomScreen = document.getElementById("roomScreen");
+const roomIdInput = document.getElementById("roomIdInput");
+const createRoomBtn = document.getElementById("createRoomBtn");
+const joinRoomBtn = document.getElementById("joinRoomBtn");
+const roomMessage = document.getElementById("roomMessage");
 
 // SETUP
-
-const setupScreen =
-    document.getElementById("setupScreen");
-
-const setupGrid =
-    document.getElementById("setupGrid");
-
-const randomBtn =
-    document.getElementById("randomBtn");
-
-const orderBtn =
-    document.getElementById("orderBtn");
-
-const clearBtn =
-    document.getElementById("clearBtn");
-
-const startBtn =
-    document.getElementById("startBtn");
-
-const nextNumber =
-    document.getElementById("nextNumber");
-
-const fillCount =
-    document.getElementById("fillCount");
-
-const progressFill =
-    document.getElementById("progressFill");
-
+const setupScreen = document.getElementById("setupScreen");
+const setupGrid = document.getElementById("setupGrid");
+const randomBtn = document.getElementById("randomBtn");
+const orderBtn = document.getElementById("orderBtn");
+const clearBtn = document.getElementById("clearBtn");
+const startBtn = document.getElementById("startBtn");
+const nextNumber = document.getElementById("nextNumber");
+const fillCount = document.getElementById("fillCount");
+const progressFill = document.getElementById("progressFill");
 
 // TURN
-
-const turnScreen =
-    document.getElementById("turnScreen");
-
-const myTurnFirst =
-    document.getElementById("myTurnFirst");
-
-const opponentFirst =
-    document.getElementById("opponentFirst");
-
+const turnScreen = document.getElementById("turnScreen");
+const myTurnFirst = document.getElementById("myTurnFirst");
+const opponentFirst = document.getElementById("opponentFirst");
 
 // GAME
-
-const gameScreen =
-    document.getElementById("gameScreen");
-
-const gameGrid =
-    document.getElementById("gameGrid");
-
-const turnIndicator =
-    document.getElementById("turnIndicator");
-
-const turnText =
-    document.getElementById("turnText");
-
-const lineCount =
-    document.getElementById("lineCount");
-
-const bingoLetters =
-    document.querySelectorAll(".bingo-letter");
-
-const newGameBtn =
-    document.getElementById("newGameBtn");
-
+const gameScreen = document.getElementById("gameScreen");
+const gameGrid = document.getElementById("gameGrid");
+const turnIndicator = document.getElementById("turnIndicator");
+const turnText = document.getElementById("turnText");
+const lineCount = document.getElementById("lineCount");
+const bingoLetters = document.querySelectorAll(".bingo-letter");
+const newGameBtn = document.getElementById("newGameBtn");
 
 // WINNER
-
-const winnerPopup =
-    document.getElementById("winnerPopup");
-
-const winnerText =
-    document.getElementById("winnerText");
-
-const winnerNewGame =
-    document.getElementById("winnerNewGame");
+const winnerPopup = document.getElementById("winnerPopup");
+const winnerText = document.getElementById("winnerText");
+const winnerNewGame = document.getElementById("winnerNewGame");
 
 
 // ======================================================
 // GAME VARIABLES
 // ======================================================
 
-let setupNumbers =
-    new Array(25).fill(null);
-
+let setupNumbers = new Array(25).fill(null);
 let currentNumber = 1;
-
 let currentTurn = "my";
-
 let completedLineIndexes = [];
-
 let gameOver = false;
 
 
@@ -172,76 +104,59 @@ let gameOver = false;
 // ======================================================
 
 let roomId = "";
-
 let playerRole = "";
-
 let latestRoomData = null;
-
 let roomListenerStarted = false;
-
 let waitingListenerStarted = false;
+
+// Track our own presence key so onDisconnect works
+let presenceRef = null;
+
+// Local flag: did WE create this room right now (vs joining)?
+let iAmRoomCreator = false;
 
 
 // ======================================================
 // MODE SELECTION
 // ======================================================
 
-// PLAY OFFLINE
-
 function playOffline() {
 
     roomId = "";
     playerRole = "";
-
+    iAmRoomCreator = false;
     latestRoomData = null;
+    roomListenerStarted = false;
+    waitingListenerStarted = false;
 
     modeScreen.classList.add("hidden");
-
     roomScreen.classList.add("hidden");
-
     setupScreen.classList.remove("hidden");
-
     turnScreen.classList.add("hidden");
-
     gameScreen.classList.add("hidden");
-
     winnerPopup.classList.add("hidden");
 
-    setupNumbers =
-        new Array(25).fill(null);
-
+    setupNumbers = new Array(25).fill(null);
     currentNumber = 1;
-
     currentTurn = "my";
-
     completedLineIndexes = [];
-
     gameOver = false;
 
     createSetupGrid();
-
     updateSetupUI();
 }
 
 
-// CREATE / JOIN ROOM
-
 function openMultiplayer() {
 
     modeScreen.classList.add("hidden");
-
     setupScreen.classList.add("hidden");
-
     turnScreen.classList.add("hidden");
-
     gameScreen.classList.add("hidden");
-
     winnerPopup.classList.add("hidden");
 
     roomScreen.classList.remove("hidden");
-
     roomMessage.innerText = "";
-
     roomIdInput.value = "";
 }
 
@@ -250,15 +165,8 @@ function openMultiplayer() {
 // MODE BUTTONS
 // ======================================================
 
-offlineBtn.addEventListener(
-    "click",
-    playOffline
-);
-
-multiplayerBtn.addEventListener(
-    "click",
-    openMultiplayer
-);
+offlineBtn.addEventListener("click", playOffline);
+multiplayerBtn.addEventListener("click", openMultiplayer);
 
 
 // ======================================================
@@ -271,28 +179,17 @@ function createSetupGrid() {
 
     for (let i = 0; i < 25; i++) {
 
-        const cell =
-            document.createElement("div");
-
-        cell.className =
-            "setup-cell";
+        const cell = document.createElement("div");
+        cell.className = "setup-cell";
 
         if (setupNumbers[i] !== null) {
-
-            cell.innerText =
-                setupNumbers[i];
-
+            cell.innerText = setupNumbers[i];
             cell.classList.add("filled");
         }
 
-        cell.addEventListener(
-            "click",
-            function () {
-
-                manualFill(i);
-
-            }
-        );
+        cell.addEventListener("click", function () {
+            manualFill(i);
+        });
 
         setupGrid.appendChild(cell);
     }
@@ -305,25 +202,13 @@ function createSetupGrid() {
 
 function manualFill(index) {
 
-    if (
-        setupNumbers[index] !== null
-    ) {
-        return;
-    }
+    if (setupNumbers[index] !== null) return;
+    if (currentNumber > 25) return;
 
-    if (
-        currentNumber > 25
-    ) {
-        return;
-    }
-
-    setupNumbers[index] =
-        currentNumber;
-
+    setupNumbers[index] = currentNumber;
     currentNumber++;
 
     createSetupGrid();
-
     updateSetupUI();
 }
 
@@ -334,44 +219,23 @@ function manualFill(index) {
 
 function updateSetupUI() {
 
-    const filled =
-        setupNumbers.filter(
-            number =>
-                number !== null
-        ).length;
+    const filled = setupNumbers.filter(n => n !== null).length;
 
-    fillCount.innerText =
-        `${filled} / 25 Filled`;
-
-    progressFill.style.width =
-        `${(filled / 25) * 100}%`;
+    fillCount.innerText = `${filled} / 25 Filled`;
+    progressFill.style.width = `${(filled / 25) * 100}%`;
 
     if (filled < 25) {
-
-        nextNumber.innerText =
-            currentNumber;
-
+        nextNumber.innerText = currentNumber;
     } else {
-
-        nextNumber.innerText =
-            "✓";
+        nextNumber.innerText = "✓";
     }
 
     if (filled === 25) {
-
-        startBtn.disabled =
-            false;
-
-        startBtn.innerText =
-            "START GAME →";
-
+        startBtn.disabled = false;
+        startBtn.innerText = "START GAME →";
     } else {
-
-        startBtn.disabled =
-            true;
-
-        startBtn.innerText =
-            `Fill Grid (${filled}/25)`;
+        startBtn.disabled = true;
+        startBtn.innerText = `Fill Grid (${filled}/25)`;
     }
 }
 
@@ -383,41 +247,17 @@ function updateSetupUI() {
 function randomFill() {
 
     let numbers = [];
+    for (let i = 1; i <= 25; i++) numbers.push(i);
 
-    for (let i = 1; i <= 25; i++) {
-
-        numbers.push(i);
+    for (let i = numbers.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
     }
 
-    for (
-        let i = numbers.length - 1;
-        i > 0;
-        i--
-    ) {
-
-        const j =
-            Math.floor(
-                Math.random() *
-                (i + 1)
-            );
-
-        [
-            numbers[i],
-            numbers[j]
-        ] =
-        [
-            numbers[j],
-            numbers[i]
-        ];
-    }
-
-    setupNumbers =
-        numbers;
-
+    setupNumbers = numbers;
     currentNumber = 26;
 
     createSetupGrid();
-
     updateSetupUI();
 }
 
@@ -429,16 +269,11 @@ function randomFill() {
 function orderFill() {
 
     setupNumbers = [];
-
-    for (let i = 1; i <= 25; i++) {
-
-        setupNumbers.push(i);
-    }
+    for (let i = 1; i <= 25; i++) setupNumbers.push(i);
 
     currentNumber = 26;
 
     createSetupGrid();
-
     updateSetupUI();
 }
 
@@ -449,13 +284,10 @@ function orderFill() {
 
 function clearGrid() {
 
-    setupNumbers =
-        new Array(25).fill(null);
-
+    setupNumbers = new Array(25).fill(null);
     currentNumber = 1;
 
     createSetupGrid();
-
     updateSetupUI();
 }
 
@@ -464,20 +296,9 @@ function clearGrid() {
 // SETUP BUTTONS
 // ======================================================
 
-randomBtn.addEventListener(
-    "click",
-    randomFill
-);
-
-orderBtn.addEventListener(
-    "click",
-    orderFill
-);
-
-clearBtn.addEventListener(
-    "click",
-    clearGrid
-);
+randomBtn.addEventListener("click", randomFill);
+orderBtn.addEventListener("click", orderFill);
+clearBtn.addEventListener("click", clearGrid);
 
 
 // ======================================================
@@ -486,32 +307,13 @@ clearBtn.addEventListener(
 
 async function openTurnSelection() {
 
-    if (
-        setupNumbers.some(
-            number =>
-                number === null
-        )
-    ) {
-        return;
-    }
-
-    // OFFLINE
+    if (setupNumbers.some(n => n === null)) return;
 
     if (!playerRole) {
-
-        setupScreen.classList.add(
-            "hidden"
-        );
-
-        turnScreen.classList.remove(
-            "hidden"
-        );
-
+        setupScreen.classList.add("hidden");
+        turnScreen.classList.remove("hidden");
         return;
     }
-
-
-    // MULTIPLAYER
 
     await saveMyBoardAndShowTurnScreen();
 }
@@ -521,10 +323,7 @@ async function openTurnSelection() {
 // START BUTTON
 // ======================================================
 
-startBtn.addEventListener(
-    "click",
-    openTurnSelection
-);
+startBtn.addEventListener("click", openTurnSelection);
 
 
 // ======================================================
@@ -533,55 +332,27 @@ startBtn.addEventListener(
 
 async function saveMyBoardAndShowTurnScreen() {
 
-    if (!roomId || !playerRole) {
-        return;
-    }
+    if (!roomId || !playerRole) return;
 
     try {
 
-        const roomRef =
-            ref(
-                db,
-                "games/" + roomId
-            );
+        const roomRef = ref(db, "games/" + roomId);
 
-        const boardKey =
-            playerRole === "player1"
-                ? "player1Board"
-                : "player2Board";
+        const boardKey = playerRole === "player1" ? "player1Board" : "player2Board";
+        const readyKey = playerRole === "player1" ? "player1Ready" : "player2Ready";
 
-        const readyKey =
-            playerRole === "player1"
-                ? "player1Ready"
-                : "player2Ready";
+        await update(roomRef, {
+            [boardKey]: setupNumbers,
+            [readyKey]: true
+        });
 
-        await update(
-            roomRef,
-            {
-                [boardKey]: setupNumbers,
-                [readyKey]: true
-            }
-        );
-
-        setupScreen.classList.add(
-            "hidden"
-        );
-
-        turnScreen.classList.remove(
-            "hidden"
-        );
+        setupScreen.classList.add("hidden");
+        turnScreen.classList.remove("hidden");
 
     }
     catch (error) {
-
-        console.error(
-            "Board Save Error:",
-            error
-        );
-
-        showRoomMessage(
-            "❌ Board save nahi hua."
-        );
+        console.error("Board Save Error:", error);
+        showRoomMessage("❌ Board save nahi hua.");
     }
 }
 
@@ -591,9 +362,7 @@ async function saveMyBoardAndShowTurnScreen() {
 // ======================================================
 
 function startOfflineGame(firstTurn) {
-
     startGame(firstTurn);
-
 }
 
 
@@ -601,40 +370,26 @@ function startOfflineGame(firstTurn) {
 // TURN SELECTION
 // ======================================================
 
-myTurnFirst.addEventListener(
-    "click",
-    async function () {
+myTurnFirst.addEventListener("click", async function () {
 
-        if (!playerRole) {
-
-            startOfflineGame("my");
-
-            return;
-        }
-
-        await chooseMultiplayerTurn(
-            "my"
-        );
+    if (!playerRole) {
+        startOfflineGame("my");
+        return;
     }
-);
+
+    await chooseMultiplayerTurn("my");
+});
 
 
-opponentFirst.addEventListener(
-    "click",
-    async function () {
+opponentFirst.addEventListener("click", async function () {
 
-        if (!playerRole) {
-
-            startOfflineGame("opponent");
-
-            return;
-        }
-
-        await chooseMultiplayerTurn(
-            "opponent"
-        );
+    if (!playerRole) {
+        startOfflineGame("opponent");
+        return;
     }
-);
+
+    await chooseMultiplayerTurn("opponent");
+});
 
 
 // ======================================================
@@ -643,44 +398,26 @@ opponentFirst.addEventListener(
 
 async function chooseMultiplayerTurn(choice) {
 
-    if (!roomId || !playerRole) {
-        return;
-    }
+    if (!roomId || !playerRole) return;
 
     try {
 
-        const roomRef =
-            ref(
-                db,
-                "games/" + roomId
-            );
+        const roomRef = ref(db, "games/" + roomId);
 
-        const choiceKey =
-            playerRole === "player1"
-                ? "player1TurnChoice"
-                : "player2TurnChoice";
+        const choiceKey = playerRole === "player1"
+            ? "player1TurnChoice"
+            : "player2TurnChoice";
 
-        await update(
-            roomRef,
-            {
-                [choiceKey]: choice
-            }
-        );
+        await update(roomRef, { [choiceKey]: choice });
 
-        turnScreen.classList.add(
-            "hidden"
-        );
+        turnScreen.classList.add("hidden");
 
         roomMessage.innerText =
             "✅ Turn choice save ho gayi. Dusre player ka wait karo...";
 
     }
     catch (error) {
-
-        console.error(
-            "Turn Choice Error:",
-            error
-        );
+        console.error("Turn Choice Error:", error);
     }
 }
 
@@ -691,92 +428,48 @@ async function chooseMultiplayerTurn(choice) {
 
 async function processTurnChoices(data) {
 
-    if (!data) {
-        return;
-    }
+    if (!data) return;
 
-    if (
-        data.player1TurnChoice !== "my" &&
-        data.player1TurnChoice !== "opponent"
-    ) {
-        return;
-    }
+    if (data.player1TurnChoice !== "my" && data.player1TurnChoice !== "opponent") return;
+    if (data.player2TurnChoice !== "my" && data.player2TurnChoice !== "opponent") return;
 
-    if (
-        data.player2TurnChoice !== "my" &&
-        data.player2TurnChoice !== "opponent"
-    ) {
-        return;
-    }
+    if (data.status === "playing") return;
 
-    if (data.status === "playing") {
-        return;
-    }
-
-    const p1Choice =
-        data.player1TurnChoice;
-
-    const p2Choice =
-        data.player2TurnChoice;
-
-
-    // Dono ko opposite choice karni hogi
+    const p1Choice = data.player1TurnChoice;
+    const p2Choice = data.player2TurnChoice;
 
     if (p1Choice === p2Choice) {
 
         if (playerRole) {
-
             roomMessage.innerText =
                 "⚠️ Dono players ne same option select kiya. Ek MY TURN FIRST aur dusra OPPONENT FIRST select kare.";
-
         }
 
         return;
     }
 
-
     let firstPlayer;
+    if (p1Choice === "my") firstPlayer = "player1";
+    else firstPlayer = "player2";
 
-    if (p1Choice === "my") {
-
-        firstPlayer = "player1";
-
-    } else {
-
-        firstPlayer = "player2";
-    }
-
-
-    // Sirf Player 1 Firebase state start karega
-
+    // Only Player 1 writes the start state
     if (playerRole === "player1") {
 
         try {
 
-            const roomRef =
-                ref(
-                    db,
-                    "games/" + roomId
-                );
+            const roomRef = ref(db, "games/" + roomId);
 
-            await update(
-                roomRef,
-                {
-                    currentTurn: firstPlayer,
-                    status: "playing",
-                    moves: {},
-                    lastMove: null,
-                    winner: null
-                }
-            );
+            await update(roomRef, {
+                currentTurn: firstPlayer,
+                status: "playing",
+                moves: {},
+                lastMove: null,
+                winner: null
+            });
 
         }
         catch (error) {
-
-            console.error(
-                "Start Multiplayer Error:",
-                error
-            );
+            console.error("Start Multiplayer Error:", error);
         }
     }
 }
@@ -788,29 +481,17 @@ async function processTurnChoices(data) {
 
 function startGame(firstTurn) {
 
-    currentTurn =
-        firstTurn;
-
-    completedLineIndexes =
-        [];
-
-    gameOver =
-        false;
+    currentTurn = firstTurn;
+    completedLineIndexes = [];
+    gameOver = false;
 
     removeWinningLines();
 
-    turnScreen.classList.add(
-        "hidden"
-    );
-
-    gameScreen.classList.remove(
-        "hidden"
-    );
+    turnScreen.classList.add("hidden");
+    gameScreen.classList.remove("hidden");
 
     createGameGrid();
-
     updateTurnIndicator();
-
     updateBingoStatus();
 }
 
@@ -823,54 +504,25 @@ function createGameGrid() {
 
     gameGrid.innerHTML = "";
 
-    setupNumbers.forEach(
-        function (
-            number,
-            index
-        ) {
+    setupNumbers.forEach(function (number, index) {
 
-            const cell =
-                document.createElement(
-                    "div"
-                );
+        const cell = document.createElement("div");
+        cell.className = "game-cell";
+        cell.innerText = number;
+        cell.dataset.index = index;
+        cell.dataset.number = number;
 
-            cell.className =
-                "game-cell";
+        cell.addEventListener("click", function () {
 
-            cell.innerText =
-                number;
+            if (playerRole) {
+                markMultiplayerCell(cell);
+            } else {
+                markOfflineCell(cell);
+            }
+        });
 
-            cell.dataset.index =
-                index;
-
-            cell.dataset.number =
-                number;
-
-            cell.addEventListener(
-                "click",
-                function () {
-
-                    if (playerRole) {
-
-                        markMultiplayerCell(
-                            cell
-                        );
-
-                    } else {
-
-                        markOfflineCell(
-                            cell
-                        );
-                    }
-
-                }
-            );
-
-            gameGrid.appendChild(
-                cell
-            );
-        }
-    );
+        gameGrid.appendChild(cell);
+    });
 }
 
 
@@ -880,45 +532,24 @@ function createGameGrid() {
 
 function markOfflineCell(cell) {
 
-    if (gameOver) {
-        return;
-    }
+    if (gameOver) return;
 
     if (
-        cell.classList.contains(
-            "marked-my"
-        ) ||
-        cell.classList.contains(
-            "marked-opponent"
-        )
-    ) {
-        return;
-    }
+        cell.classList.contains("marked-my") ||
+        cell.classList.contains("marked-opponent")
+    ) return;
 
     if (currentTurn === "my") {
-
-        cell.classList.add(
-            "marked-my"
-        );
-
+        cell.classList.add("marked-my");
     } else {
-
-        cell.classList.add(
-            "marked-opponent"
-        );
+        cell.classList.add("marked-opponent");
     }
 
     checkLines();
 
-    if (gameOver) {
-        return;
-    }
+    if (gameOver) return;
 
-    currentTurn =
-        currentTurn === "my"
-            ? "opponent"
-            : "my";
-
+    currentTurn = currentTurn === "my" ? "opponent" : "my";
     updateTurnIndicator();
 }
 
@@ -929,133 +560,45 @@ function markOfflineCell(cell) {
 
 async function markMultiplayerCell(cell) {
 
-    if (gameOver) {
-        return;
-    }
+    if (gameOver) return;
+    if (!roomId || !playerRole) return;
 
-    if (!roomId || !playerRole) {
-        return;
-    }
+    if (!latestRoomData || latestRoomData.status !== "playing") return;
 
+    if (latestRoomData.currentTurn !== playerRole) return;
 
-    // Local Firebase data check
-
-    if (
-        !latestRoomData ||
-        latestRoomData.status !== "playing"
-    ) {
-        return;
-    }
-
-
-    // Wrong turn
-
-    if (
-        latestRoomData.currentTurn !==
-        playerRole
-    ) {
-
-        return;
-    }
-
-
-    const number =
-        Number(
-            cell.dataset.number
-        );
-
-
-    // Firebase transaction
-
-    const roomRef =
-        ref(
-            db,
-            "games/" + roomId
-        );
-
+    const number = Number(cell.dataset.number);
+    const roomRef = ref(db, "games/" + roomId);
 
     try {
 
-        await runTransaction(
-            roomRef,
-            function (room) {
+        await runTransaction(roomRef, function (room) {
 
-                if (!room) {
-                    return room;
-                }
+            if (!room) return room;
+            if (room.status !== "playing") return;
+            if (room.currentTurn !== playerRole) return;
 
-                if (
-                    room.status !==
-                    "playing"
-                ) {
-                    return;
-                }
+            if (!room.moves) room.moves = {};
 
+            if (room.moves[number] !== undefined) return;
 
-                // Check turn again inside transaction
+            room.moves[number] = playerRole;
 
-                if (
-                    room.currentTurn !==
-                    playerRole
-                ) {
-                    return;
-                }
+            room.lastMove = {
+                number: number,
+                player: playerRole,
+                time: Date.now()
+            };
 
+            room.currentTurn =
+                playerRole === "player1" ? "player2" : "player1";
 
-                if (!room.moves) {
-
-                    room.moves = {};
-                }
-
-
-                // Number already called
-
-                if (
-                    room.moves[number] !==
-                    undefined
-                ) {
-                    return;
-                }
-
-
-                // Save move
-
-                room.moves[number] =
-                    playerRole;
-
-
-                // Save latest move
-
-                room.lastMove = {
-
-                    number: number,
-
-                    player: playerRole,
-
-                    time: Date.now()
-
-                };
-
-
-                // Automatically change turn
-
-                room.currentTurn =
-                    playerRole === "player1"
-                        ? "player2"
-                        : "player1";
-
-
-                return room;
-            }
-        );
+            return room;
+        });
 
     }
     catch (error) {
-
-        console.error(
-            "Move Error:",
-            error
-        );
+        console.error("Move Error:", error);
     }
 }
 
@@ -1066,68 +609,27 @@ async function markMultiplayerCell(cell) {
 
 function renderMultiplayerMarks(data) {
 
-    if (!data) {
-        return;
-    }
+    if (!data) return;
 
-    const moves =
-        data.moves || {};
+    const moves = data.moves || {};
+    const cells = document.querySelectorAll(".game-cell");
 
-    const cells =
-        document.querySelectorAll(
-            ".game-cell"
-        );
+    cells.forEach(function (cell) {
 
+        const number = Number(cell.dataset.number);
+        const moveBy = moves[number];
 
-    cells.forEach(
-        function (cell) {
+        cell.classList.remove("marked-my");
+        cell.classList.remove("marked-opponent");
 
-            const number =
-                Number(
-                    cell.dataset.number
-                );
+        if (!moveBy) return;
 
-            const moveBy =
-                moves[number];
-
-
-            cell.classList.remove(
-                "marked-my"
-            );
-
-            cell.classList.remove(
-                "marked-opponent"
-            );
-
-
-            if (!moveBy) {
-                return;
-            }
-
-
-            if (
-                moveBy ===
-                playerRole
-            ) {
-
-                // Apna move = GREEN
-
-                cell.classList.add(
-                    "marked-my"
-                );
-
-            } else {
-
-                // Opponent ka move = RED
-
-                cell.classList.add(
-                    "marked-opponent"
-                );
-            }
-
+        if (moveBy === playerRole) {
+            cell.classList.add("marked-my");
+        } else {
+            cell.classList.add("marked-opponent");
         }
-    );
-
+    });
 
     updateMultiplayerBingo();
 }
@@ -1139,135 +641,54 @@ function renderMultiplayerMarks(data) {
 
 function updateMultiplayerBingo() {
 
-    if (
-        !latestRoomData ||
-        !latestRoomData.moves ||
-        !playerRole
-    ) {
-        return;
-    }
+    if (!latestRoomData || !latestRoomData.moves || !playerRole) return;
 
+    const moves = latestRoomData.moves;
 
-    const moves =
-        latestRoomData.moves;
-
-
-    const markedNumbers =
-        new Set(
-            Object.keys(moves)
-                .map(
-                    number =>
-                        Number(number)
-                )
-        );
-
-
-    const completed =
-        [];
-
-
-    winningPatterns.forEach(
-        function (
-            pattern,
-            patternIndex
-        ) {
-
-            const complete =
-                pattern.every(
-                    index => {
-
-                        const number =
-                            Number(
-                                setupNumbers[index]
-                            );
-
-                        return markedNumbers.has(
-                            number
-                        );
-                    }
-                );
-
-
-            if (complete) {
-
-                completed.push(
-                    patternIndex
-                );
-            }
-        }
+    const markedNumbers = new Set(
+        Object.keys(moves).map(n => Number(n))
     );
 
+    const completed = [];
 
-    completedLineIndexes =
-        completed;
+    winningPatterns.forEach(function (pattern, patternIndex) {
 
+        const complete = pattern.every(index => {
+
+            const number = Number(setupNumbers[index]);
+            return markedNumbers.has(number);
+        });
+
+        if (complete) completed.push(patternIndex);
+    });
+
+    completedLineIndexes = completed;
 
     updateBingoStatus();
 
-
-    // Winning lines
-
     removeWinningLines();
 
-    completed.forEach(
-        function (patternIndex) {
+    completed.forEach(function (patternIndex) {
+        drawWinningLine(winningPatterns[patternIndex], patternIndex);
+    });
 
-            drawWinningLine(
-                winningPatterns[
-                    patternIndex
-                ],
-                patternIndex
-            );
-        }
-    );
-
-
-    // 5 lines = BINGO
-
-    if (
-        completed.length >= 5 &&
-        !gameOver
-    ) {
+    if (completed.length >= 5 && !gameOver) {
 
         gameOver = true;
 
-        const winner =
-            playerRole;
+        const winner = playerRole;
+        const roomRef = ref(db, "games/" + roomId);
 
+        runTransaction(roomRef, function (room) {
 
-        // Only current player writes winner
+            if (!room) return room;
+            if (room.status === "finished") return;
 
-        const roomRef =
-            ref(
-                db,
-                "games/" + roomId
-            );
+            room.status = "finished";
+            room.winner = winner;
 
-
-        runTransaction(
-            roomRef,
-            function (room) {
-
-                if (!room) {
-                    return room;
-                }
-
-                if (
-                    room.status ===
-                    "finished"
-                ) {
-                    return;
-                }
-
-                room.status =
-                    "finished";
-
-                room.winner =
-                    winner;
-
-                return room;
-            }
-        );
+            return room;
+        });
     }
 }
 
@@ -1280,47 +701,23 @@ function updateTurnIndicator() {
 
     if (!playerRole) {
 
-        if (
-            currentTurn === "my"
-        ) {
-
-            turnIndicator.className =
-                "turn-indicator my-turn";
-
-            turnText.innerText =
-                "MY TURN";
-
+        if (currentTurn === "my") {
+            turnIndicator.className = "turn-indicator my-turn";
+            turnText.innerText = "MY TURN";
         } else {
-
-            turnIndicator.className =
-                "turn-indicator opponent-turn";
-
-            turnText.innerText =
-                "OPPONENT TURN";
+            turnIndicator.className = "turn-indicator opponent-turn";
+            turnText.innerText = "OPPONENT TURN";
         }
 
         return;
     }
 
-
-    if (
-        currentTurn ===
-        playerRole
-    ) {
-
-        turnIndicator.className =
-            "turn-indicator my-turn";
-
-        turnText.innerText =
-            "MY TURN";
-
+    if (currentTurn === playerRole) {
+        turnIndicator.className = "turn-indicator my-turn";
+        turnText.innerText = "MY TURN";
     } else {
-
-        turnIndicator.className =
-            "turn-indicator opponent-turn";
-
-        turnText.innerText =
-            "OPPONENT TURN";
+        turnIndicator.className = "turn-indicator opponent-turn";
+        turnText.innerText = "OPPONENT TURN";
     }
 }
 
@@ -1330,39 +727,18 @@ function updateTurnIndicator() {
 // ======================================================
 
 const winningPatterns = [
-
-    // ROWS
-
     [0, 1, 2, 3, 4],
-
     [5, 6, 7, 8, 9],
-
     [10, 11, 12, 13, 14],
-
     [15, 16, 17, 18, 19],
-
     [20, 21, 22, 23, 24],
-
-
-    // COLUMNS
-
     [0, 5, 10, 15, 20],
-
     [1, 6, 11, 16, 21],
-
     [2, 7, 12, 17, 22],
-
     [3, 8, 13, 18, 23],
-
     [4, 9, 14, 19, 24],
-
-
-    // DIAGONALS
-
     [0, 6, 12, 18, 24],
-
     [4, 8, 12, 16, 20]
-
 ];
 
 
@@ -1372,75 +748,31 @@ const winningPatterns = [
 
 function checkLines() {
 
-    const cells =
-        document.querySelectorAll(
-            ".game-cell"
+    const cells = document.querySelectorAll(".game-cell");
+
+    winningPatterns.forEach(function (pattern, patternIndex) {
+
+        if (completedLineIndexes.includes(patternIndex)) return;
+
+        const completed = pattern.every(index =>
+
+            cells[index].classList.contains("marked-my") ||
+            cells[index].classList.contains("marked-opponent")
         );
 
-
-    winningPatterns.forEach(
-        function (
-            pattern,
-            patternIndex
-        ) {
-
-            if (
-                completedLineIndexes.includes(
-                    patternIndex
-                )
-            ) {
-                return;
-            }
-
-
-            const completed =
-                pattern.every(
-                    index =>
-
-                        cells[index]
-                            .classList
-                            .contains(
-                                "marked-my"
-                            )
-
-                        ||
-
-                        cells[index]
-                            .classList
-                            .contains(
-                                "marked-opponent"
-                            )
-                );
-
-
-            if (completed) {
-
-                completedLineIndexes.push(
-                    patternIndex
-                );
-
-                drawWinningLine(
-                    pattern,
-                    patternIndex
-                );
-            }
+        if (completed) {
+            completedLineIndexes.push(patternIndex);
+            drawWinningLine(pattern, patternIndex);
         }
-    );
-
+    });
 
     updateBingoStatus();
 
-
-    if (
-        completedLineIndexes.length >= 5
-    ) {
+    if (completedLineIndexes.length >= 5) {
 
         gameOver = true;
 
-        setTimeout(
-            showWinner,
-            600
-        );
+        setTimeout(showWinner, 600);
     }
 }
 
@@ -1451,39 +783,18 @@ function checkLines() {
 
 function updateBingoStatus() {
 
-    const totalLines =
-        Math.min(
-            completedLineIndexes.length,
-            5
-        );
+    const totalLines = Math.min(completedLineIndexes.length, 5);
 
+    lineCount.innerText = `${totalLines} / 5 Lines`;
 
-    lineCount.innerText =
-        `${totalLines} / 5 Lines`;
+    bingoLetters.forEach(function (letter, index) {
 
-
-    bingoLetters.forEach(
-        function (
-            letter,
-            index
-        ) {
-
-            if (
-                index < totalLines
-            ) {
-
-                letter.classList.add(
-                    "active"
-                );
-
-            } else {
-
-                letter.classList.remove(
-                    "active"
-                );
-            }
+        if (index < totalLines) {
+            letter.classList.add("active");
+        } else {
+            letter.classList.remove("active");
         }
-    );
+    });
 }
 
 
@@ -1491,134 +802,47 @@ function updateBingoStatus() {
 // DRAW WINNING LINE
 // ======================================================
 
-function drawWinningLine(
-    pattern,
-    patternIndex
-) {
+function drawWinningLine(pattern, patternIndex) {
 
-    const cells =
-        document.querySelectorAll(
-            ".game-cell"
-        );
+    const cells = document.querySelectorAll(".game-cell");
+    const grid = document.getElementById("gameGrid");
 
-    const grid =
-        document.getElementById(
-            "gameGrid"
-        );
+    if (!cells[pattern[0]] || !cells[pattern[4]]) return;
 
+    if (grid.querySelector(`.winning-line[data-line="${patternIndex}"]`)) return;
 
-    if (
-        !cells[pattern[0]] ||
-        !cells[pattern[4]]
-    ) {
-        return;
-    }
+    const firstCell = cells[pattern[0]];
+    const lastCell = cells[pattern[4]];
 
+    const gridRect = grid.getBoundingClientRect();
+    const firstRect = firstCell.getBoundingClientRect();
+    const lastRect = lastCell.getBoundingClientRect();
 
-    // Don't draw duplicate line
+    const x1 = firstRect.left - gridRect.left + firstRect.width / 2;
+    const y1 = firstRect.top - gridRect.top + firstRect.height / 2;
 
-    if (
-        grid.querySelector(
-            `.winning-line[data-line="${patternIndex}"]`
-        )
-    ) {
-        return;
-    }
+    const x2 = lastRect.left - gridRect.left + lastRect.width / 2;
+    const y2 = lastRect.top - gridRect.top + lastRect.height / 2;
 
+    const dx = x2 - x1;
+    const dy = y2 - y1;
 
-    const firstCell =
-        cells[pattern[0]];
+    const length = Math.sqrt(dx * dx + dy * dy);
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
 
-    const lastCell =
-        cells[pattern[4]];
+    const line = document.createElement("div");
 
+    line.className = "winning-line";
+    line.dataset.line = patternIndex;
 
-    const gridRect =
-        grid.getBoundingClientRect();
-
-    const firstRect =
-        firstCell.getBoundingClientRect();
-
-    const lastRect =
-        lastCell.getBoundingClientRect();
-
-
-    const x1 =
-        firstRect.left -
-        gridRect.left +
-        firstRect.width / 2;
-
-    const y1 =
-        firstRect.top -
-        gridRect.top +
-        firstRect.height / 2;
-
-
-    const x2 =
-        lastRect.left -
-        gridRect.left +
-        lastRect.width / 2;
-
-    const y2 =
-        lastRect.top -
-        gridRect.top +
-        lastRect.height / 2;
-
-
-    const dx =
-        x2 - x1;
-
-    const dy =
-        y2 - y1;
-
-
-    const length =
-        Math.sqrt(
-            dx * dx +
-            dy * dy
-        );
-
-
-    const angle =
-        Math.atan2(
-            dy,
-            dx
-        ) *
-        180 /
-        Math.PI;
-
-
-    const line =
-        document.createElement(
-            "div"
-        );
-
-
-    line.className =
-        "winning-line";
-
-    line.dataset.line =
-        patternIndex;
-
-
-    line.style.width =
-        `${length}px`;
-
-    line.style.left =
-        `${x1}px`;
+    line.style.width = `${length}px`;
+    line.style.left = `${x1}px`;
 
     const lineHeight = 8;
+    line.style.top = `${y1 - lineHeight / 2}px`;
+    line.style.transform = `rotate(${angle}deg)`;
 
-    line.style.top =
-        `${y1 - lineHeight / 2}px`;
-
-    line.style.transform =
-        `rotate(${angle}deg)`;
-
-
-    grid.appendChild(
-        line
-    );
+    grid.appendChild(line);
 }
 
 
@@ -1628,14 +852,7 @@ function drawWinningLine(
 
 function removeWinningLines() {
 
-    document
-        .querySelectorAll(
-            ".winning-line"
-        )
-        .forEach(
-            line =>
-                line.remove()
-        );
+    document.querySelectorAll(".winning-line").forEach(l => l.remove());
 }
 
 
@@ -1647,41 +864,22 @@ function showWinner() {
 
     if (!playerRole) {
 
-        if (
-            currentTurn === "my"
-        ) {
-
-            winnerText.innerText =
-                "🎉 YOU WIN!";
-
+        if (currentTurn === "my") {
+            winnerText.innerText = "🎉 YOU WIN!";
         } else {
-
-            winnerText.innerText =
-                "😭YOU LOST";
+            winnerText.innerText = "😭 YOU LOST";
         }
 
     } else {
 
-        if (
-            latestRoomData &&
-            latestRoomData.winner ===
-            playerRole
-        ) {
-
-            winnerText.innerText =
-                "🎉 YOU WIN!";
-
+        if (latestRoomData && latestRoomData.winner === playerRole) {
+            winnerText.innerText = "🎉 YOU WIN!";
         } else {
-
-            winnerText.innerText =
-                "😭YOU LOST";
+            winnerText.innerText = "😭 YOU LOST";
         }
     }
 
-
-    winnerPopup.classList.remove(
-        "hidden"
-    );
+    winnerPopup.classList.remove("hidden");
 }
 
 
@@ -1691,124 +889,41 @@ function showWinner() {
 
 async function reverseLastMove() {
 
-    if (!playerRole) {
-        return;
-    }
+    if (!playerRole) return;
+    if (!roomId) return;
+    if (!latestRoomData) return;
+    if (latestRoomData.status !== "playing") return;
 
-    if (!roomId) {
-        return;
-    }
+    const lastMove = latestRoomData.lastMove;
+    if (!lastMove) return;
+    if (lastMove.player !== playerRole) return;
 
-    if (!latestRoomData) {
-        return;
-    }
-
-    if (
-        latestRoomData.status !==
-        "playing"
-    ) {
-        return;
-    }
-
-
-    const lastMove =
-        latestRoomData.lastMove;
-
-
-    if (!lastMove) {
-        return;
-    }
-
-
-    // Sirf latest move karne wala
-    // player reverse kar sakta hai
-
-    if (
-        lastMove.player !==
-        playerRole
-    ) {
-        return;
-    }
-
-
-    const roomRef =
-        ref(
-            db,
-            "games/" + roomId
-        );
-
+    const roomRef = ref(db, "games/" + roomId);
 
     try {
 
-        await runTransaction(
-            roomRef,
-            function (room) {
+        await runTransaction(roomRef, function (room) {
 
-                if (!room) {
-                    return room;
-                }
+            if (!room) return room;
+            if (room.status !== "playing") return;
+            if (!room.lastMove) return;
+            if (room.lastMove.player !== playerRole) return;
 
+            const number = room.lastMove.number;
 
-                if (
-                    room.status !==
-                    "playing"
-                ) {
-                    return;
-                }
-
-
-                if (
-                    !room.lastMove
-                ) {
-                    return;
-                }
-
-
-                if (
-                    room.lastMove.player !==
-                    playerRole
-                ) {
-                    return;
-                }
-
-
-                const number =
-                    room.lastMove.number;
-
-
-                if (
-                    room.moves &&
-                    room.moves[number] !==
-                    undefined
-                ) {
-
-                    delete room.moves[
-                        number
-                    ];
-                }
-
-
-                // Turn wapas us player ki
-
-                room.currentTurn =
-                    playerRole;
-
-
-                room.lastMove =
-                    null;
-
-
-                return room;
+            if (room.moves && room.moves[number] !== undefined) {
+                delete room.moves[number];
             }
-        );
+
+            room.currentTurn = playerRole;
+            room.lastMove = null;
+
+            return room;
+        });
 
     }
     catch (error) {
-
-        console.error(
-            "Reverse Error:",
-            error
-        );
+        console.error("Reverse Error:", error);
     }
 }
 
@@ -1819,44 +934,18 @@ async function reverseLastMove() {
 
 function createReverseButton() {
 
-    let reverseBtn =
-        document.getElementById(
-            "reverseBtn"
-        );
+    let reverseBtn = document.getElementById("reverseBtn");
+    if (reverseBtn) return;
 
+    reverseBtn = document.createElement("button");
+    reverseBtn.id = "reverseBtn";
+    reverseBtn.type = "button";
+    reverseBtn.className = "reverse-btn";
+    reverseBtn.innerText = "↩ REVERSE LAST MOVE";
 
-    if (reverseBtn) {
-        return;
-    }
+    reverseBtn.addEventListener("click", reverseLastMove);
 
-
-    reverseBtn =
-        document.createElement(
-            "button"
-        );
-
-    reverseBtn.id =
-        "reverseBtn";
-
-    reverseBtn.type =
-        "button";
-
-    reverseBtn.className =
-        "reverse-btn";
-
-    reverseBtn.innerText =
-        "↩ REVERSE LAST MOVE";
-
-
-    reverseBtn.addEventListener(
-        "click",
-        reverseLastMove
-    );
-
-
-    gameScreen.appendChild(
-        reverseBtn
-    );
+    gameScreen.appendChild(reverseBtn);
 }
 
 
@@ -1866,51 +955,21 @@ function createReverseButton() {
 
 function updateReverseButton(data) {
 
-    const reverseBtn =
-        document.getElementById(
-            "reverseBtn"
-        );
+    const reverseBtn = document.getElementById("reverseBtn");
+    if (!reverseBtn) return;
 
-    if (!reverseBtn) {
+    if (!playerRole || !data || !data.lastMove || data.status !== "playing") {
+        reverseBtn.disabled = true;
+        reverseBtn.style.opacity = "0.45";
         return;
     }
 
-
-    if (
-        !playerRole ||
-        !data ||
-        !data.lastMove ||
-        data.status !== "playing"
-    ) {
-
-        reverseBtn.disabled =
-            true;
-
-        reverseBtn.style.opacity =
-            "0.45";
-
-        return;
-    }
-
-
-    if (
-        data.lastMove.player ===
-        playerRole
-    ) {
-
-        reverseBtn.disabled =
-            false;
-
-        reverseBtn.style.opacity =
-            "1";
-
+    if (data.lastMove.player === playerRole) {
+        reverseBtn.disabled = false;
+        reverseBtn.style.opacity = "1";
     } else {
-
-        reverseBtn.disabled =
-            true;
-
-        reverseBtn.style.opacity =
-            "0.45";
+        reverseBtn.disabled = true;
+        reverseBtn.style.opacity = "0.45";
     }
 }
 
@@ -1921,123 +980,65 @@ function updateReverseButton(data) {
 
 async function newGame() {
 
-    winnerPopup.classList.add(
-        "hidden"
-    );
-
+    winnerPopup.classList.add("hidden");
     gameOver = false;
-
     completedLineIndexes = [];
-
     removeWinningLines();
 
-
     // OFFLINE
-
     if (!playerRole) {
 
-        setupNumbers =
-            new Array(25).fill(null);
-
+        setupNumbers = new Array(25).fill(null);
         currentNumber = 1;
-
         currentTurn = "my";
 
-        gameScreen.classList.add(
-            "hidden"
-        );
-
-        turnScreen.classList.add(
-            "hidden"
-        );
-
-        setupScreen.classList.remove(
-            "hidden"
-        );
+        gameScreen.classList.add("hidden");
+        turnScreen.classList.add("hidden");
+        setupScreen.classList.remove("hidden");
 
         createSetupGrid();
-
         updateSetupUI();
 
         return;
     }
 
-
     // MULTIPLAYER
-
     if (roomId) {
 
         try {
 
-            const roomRef =
-                ref(
-                    db,
-                    "games/" + roomId
-                );
+            const roomRef = ref(db, "games/" + roomId);
 
+            const boardKey = playerRole === "player1" ? "player1Board" : "player2Board";
+            const readyKey = playerRole === "player1" ? "player1Ready" : "player2Ready";
 
-            const boardKey =
-                playerRole === "player1"
-                    ? "player1Board"
-                    : "player2Board";
+            await update(roomRef, {
+                [boardKey]: null,
+                [readyKey]: false,
 
+                player1TurnChoice: null,
+                player2TurnChoice: null,
 
-            const readyKey =
-                playerRole === "player1"
-                    ? "player1Ready"
-                    : "player2Ready";
+                currentTurn: null,
+                moves: {},
+                lastMove: null,
+                winner: null,
+                status: "waiting"
+            });
 
-
-            await update(
-                roomRef,
-                {
-                    [boardKey]: null,
-                    [readyKey]: false,
-
-                    player1TurnChoice: null,
-                    player2TurnChoice: null,
-
-                    currentTurn: null,
-
-                    moves: {},
-
-                    lastMove: null,
-
-                    winner: null,
-
-                    status: "waiting"
-                }
-            );
-
-
-            setupNumbers =
-                new Array(25).fill(null);
-
+            setupNumbers = new Array(25).fill(null);
             currentNumber = 1;
 
-            gameScreen.classList.add(
-                "hidden"
-            );
-
-            turnScreen.classList.add(
-                "hidden"
-            );
-
-            setupScreen.classList.remove(
-                "hidden"
-            );
+            gameScreen.classList.add("hidden");
+            turnScreen.classList.add("hidden");
+            setupScreen.classList.remove("hidden");
 
             createSetupGrid();
-
             updateSetupUI();
 
         }
         catch (error) {
-
-            console.error(
-                "New Game Error:",
-                error
-            );
+            console.error("New Game Error:", error);
         }
     }
 }
@@ -2047,15 +1048,8 @@ async function newGame() {
 // NEW GAME BUTTONS
 // ======================================================
 
-newGameBtn.addEventListener(
-    "click",
-    newGame
-);
-
-winnerNewGame.addEventListener(
-    "click",
-    newGame
-);
+newGameBtn.addEventListener("click", newGame);
+winnerNewGame.addEventListener("click", newGame);
 
 
 // ======================================================
@@ -2063,9 +1057,7 @@ winnerNewGame.addEventListener(
 // ======================================================
 
 function showRoomMessage(message) {
-
-    roomMessage.innerText =
-        message;
+    roomMessage.innerText = message;
 }
 
 
@@ -2074,7 +1066,6 @@ function showRoomMessage(message) {
 // ======================================================
 
 function validRoomId(id) {
-
     return /^\d{4}$/.test(id);
 }
 
@@ -2083,16 +1074,12 @@ function validRoomId(id) {
 // ONLY NUMBERS IN ROOM INPUT
 // ======================================================
 
-roomIdInput.addEventListener(
-    "input",
-    function () {
+roomIdInput.addEventListener("input", function () {
 
-        this.value =
-            this.value
-                .replace(/\D/g, "")
-                .slice(0, 4);
-    }
-);
+    this.value = this.value
+        .replace(/\D/g, "")
+        .slice(0, 4);
+});
 
 
 // ======================================================
@@ -2101,43 +1088,78 @@ roomIdInput.addEventListener(
 
 function openBingoSetup() {
 
-    modeScreen.classList.add(
-        "hidden"
-    );
+    modeScreen.classList.add("hidden");
+    roomScreen.classList.add("hidden");
+    turnScreen.classList.add("hidden");
+    gameScreen.classList.add("hidden");
+    winnerPopup.classList.add("hidden");
 
-    roomScreen.classList.add(
-        "hidden"
-    );
+    setupScreen.classList.remove("hidden");
 
-    turnScreen.classList.add(
-        "hidden"
-    );
-
-    gameScreen.classList.add(
-        "hidden"
-    );
-
-    winnerPopup.classList.add(
-        "hidden"
-    );
-
-    setupScreen.classList.remove(
-        "hidden"
-    );
-
-    setupNumbers =
-        new Array(25).fill(null);
-
+    setupNumbers = new Array(25).fill(null);
     currentNumber = 1;
 
     createSetupGrid();
-
     updateSetupUI();
 }
 
-// ========================================
-// CREATE ROOM
-// ========================================
+
+// ======================================================
+// PRESENCE / DISCONNECT HANDLING
+// ======================================================
+
+/**
+ * Attach onDisconnect to remove the player's presence key
+ * when they disconnect (close tab / lose network).
+ *
+ * Also updates the "active" flag on the room. When BOTH players
+ * are gone, the room is deleted, freeing the ID for reuse.
+ */
+async function attachPresence() {
+
+    if (!roomId || !playerRole) return;
+
+    const roomRef = ref(db, "games/" + roomId);
+
+    // Presence key: player1 / player2
+    const presRef = ref(db, `games/${roomId}/presence/${playerRole}`);
+
+    // Mark ourselves as present
+    await set(presRef, true);
+
+    // On disconnect: delete our presence key
+    onDisconnect(presRef).remove();
+
+    // Listen to the presence node so we can auto-clean the room
+    onValue(ref(db, `games/${roomId}/presence`), async function (snap) {
+
+        if (!snap.exists()) return;
+
+        const presence = snap.val();
+
+        // If neither player is present, the room is abandoned.
+        // Only Player 1 performs the cleanup to avoid double-delete.
+        if (playerRole === "player1") {
+
+            const p1 = presence.player1 === true;
+            const p2 = presence.player2 === true;
+
+            if (!p1 && !p2) {
+                try {
+                    await remove(roomRef);
+                    console.log("🧹 Abandoned room removed:", roomId);
+                } catch (e) {
+                    console.error("Room cleanup error:", e);
+                }
+            }
+        }
+    });
+}
+
+
+// ======================================================
+// CREATE ROOM (with locking)
+// ======================================================
 
 createRoomBtn.addEventListener("click", async () => {
 
@@ -2152,11 +1174,42 @@ createRoomBtn.addEventListener("click", async () => {
 
         showRoomMessage("⏳ Room create ho raha hai...");
 
-        const r = ref(db, `games/${id}`);
+        const roomRef = ref(db, `games/${id}`);
 
-        // Same Room ID ho to bhi PURANA ROOM RESET karke
-        // NAYA ROOM create hoga.
-        await set(r, {
+        const snapshot = await get(roomRef);
+
+        // ----------------------------------------------
+        // Room already exists
+        // ----------------------------------------------
+        if (snapshot.exists()) {
+
+            const data = snapshot.val();
+
+            const p1Present = data.presence && data.presence.player1 === true;
+            const p2Present = data.presence && data.presence.player2 === true;
+
+            const p1Joined = data.player1 === true;
+            const p2Joined = data.player2 === true;
+
+            // Room is still occupied by at least one connected player
+            if (p1Present || p2Present) {
+
+                // If a game is/was going on, block. Otherwise, allow reclaim
+                // only if nobody is actually present.
+                if (p1Joined || p2Joined) {
+                    showRoomMessage("❌ Ye Room ID already in use hai. Dusra ID try karo.");
+                    return;
+                }
+            }
+
+            // Room exists but nobody present → treat as free, reset it
+            // (falls through to set() below)
+        }
+
+        // ----------------------------------------------
+        // Fresh / reclaimed room
+        // ----------------------------------------------
+        await set(roomRef, {
 
             player1: true,
             player2: false,
@@ -2173,136 +1226,121 @@ createRoomBtn.addEventListener("click", async () => {
             player2TurnChoice: null,
 
             currentTurn: null,
-
             moves: {},
-
             lastMove: null,
+            winner: null,
 
-            winner: null
+            // Presence markers
+            presence: {
+                player1: true,
+                player2: false
+            },
+
+            // Lock the room so 3rd/4th player can't join even
+            // after one player leaves mid-game
+            locked: true
         });
 
         roomId = id;
         playerRole = "player1";
+        iAmRoomCreator = true;
+
+        roomListenerStarted = false;
+        waitingListenerStarted = false;
 
         showRoomMessage("🎮 Room created!");
 
-        openBingoSetup();
+        await attachPresence();
 
+        openBingoSetup();
         listenToRoom();
 
     } catch (error) {
 
         console.error("Create Room Error:", error);
-
         showRoomMessage("❌ Room create nahi hua.");
     }
-
 });
+
 
 // ======================================================
 // JOIN ROOM
 // ======================================================
 
-joinRoomBtn.addEventListener(
-    "click",
-    async function () {
+joinRoomBtn.addEventListener("click", async function () {
 
-        const id =
-            roomIdInput.value.trim();
+    const id = roomIdInput.value.trim();
 
+    if (!validRoomId(id)) {
+        showRoomMessage("⚠️ 4 digit Room ID enter karo");
+        return;
+    }
 
-        if (
-            !validRoomId(id)
-        ) {
+    try {
 
-            showRoomMessage(
-                "⚠️ 4 digit Room ID enter karo"
-            );
+        showRoomMessage("⏳ Room check ho raha hai...");
 
+        const roomRef = ref(db, "games/" + id);
+        const snapshot = await get(roomRef);
+
+        if (!snapshot.exists()) {
+            showRoomMessage("❌ Room nahi mila.");
             return;
         }
 
+        const data = snapshot.val();
 
-        try {
-
-            showRoomMessage(
-                "⏳ Room check ho raha hai..."
-            );
-
-
-            const roomRef =
-                ref(
-                    db,
-                    "games/" + id
-                );
-
-
-            const snapshot =
-                await get(roomRef);
-
-
-            if (
-                !snapshot.exists()
-            ) {
-
-                showRoomMessage(
-                    "❌ Room nahi mila."
-                );
-
-                return;
-            }
-
-
-            const roomData =
-                snapshot.val();
-
-
-            if (
-                roomData.player2 === true
-            ) {
-
-                showRoomMessage(
-                    "❌ Room full hai."
-                );
-
-                return;
-            }
-
-
-            await update(
-                roomRef,
-                {
-                    player2: true,
-                    status: "waiting"
-                }
-            );
-
-
-            roomId =
-                id;
-
-            playerRole =
-                "player2";
-
-
-            openBingoSetup();
-
-            listenToRoom();
-
+        // ----------------------------------------------
+        // Room is occupied / locked → deny third player
+        // ----------------------------------------------
+        if (data.player2 === true) {
+            showRoomMessage("❌ Room full hai.");
+            return;
         }
-        catch (error) {
 
-            console.error(
-                "Join Room Error:",
-                error
-            );
+        // If the room was left behind by a disconnected Player 1
+        // (presence missing), we allow the new Player 2 to join only
+        // if Player 1 is still marked present. Otherwise treat as abandoned.
+        const p1Present = data.presence && data.presence.player1 === true;
 
-            showRoomMessage(
-                "❌ Room join nahi hua."
-            );
+        if (data.player1 === true && !p1Present) {
+            // Player1 slot is stale — no live host
+            showRoomMessage("❌ Room available nahi hai (host offline).");
+            return;
         }
+
+        if (data.locked === true && data.player1 !== true) {
+            showRoomMessage("❌ Room available nahi hai.");
+            return;
+        }
+
+        // ----------------------------------------------
+        // Join as Player 2
+        // ----------------------------------------------
+        await update(roomRef, {
+            player2: true,
+            status: "waiting"
+        });
+
+        roomId = id;
+        playerRole = "player2";
+        iAmRoomCreator = false;
+
+        roomListenerStarted = false;
+        waitingListenerStarted = false;
+
+        await attachPresence();
+
+        openBingoSetup();
+        listenToRoom();
+
     }
-);
+    catch (error) {
+
+        console.error("Join Room Error:", error);
+        showRoomMessage("❌ Room join nahi hua.");
+    }
+});
 
 
 // ======================================================
@@ -2311,47 +1349,22 @@ joinRoomBtn.addEventListener(
 
 function waitForOpponent() {
 
-    if (waitingListenerStarted) {
-        return;
-    }
-
+    if (waitingListenerStarted) return;
     waitingListenerStarted = true;
 
+    const roomRef = ref(db, "games/" + roomId);
 
-    const roomRef =
-        ref(
-            db,
-            "games/" + roomId
-        );
+    onValue(roomRef, function (snapshot) {
 
+        if (!snapshot.exists()) return;
 
-    onValue(
-        roomRef,
-        function (snapshot) {
+        const data = snapshot.val();
+        latestRoomData = data;
 
-            if (
-                !snapshot.exists()
-            ) {
-                return;
-            }
-
-
-            const data =
-                snapshot.val();
-
-
-            latestRoomData =
-                data;
-
-
-            if (
-                data.player2 === true
-            ) {
-
-                listenToRoom();
-            }
+        if (data.player2 === true) {
+            listenToRoom();
         }
-    );
+    });
 }
 
 
@@ -2361,252 +1374,127 @@ function waitForOpponent() {
 
 function listenToRoom() {
 
-    if (
-        !roomId ||
-        roomListenerStarted
-    ) {
-        return;
-    }
-
-
+    if (!roomId || roomListenerStarted) return;
     roomListenerStarted = true;
 
+    const roomRef = ref(db, "games/" + roomId);
 
-    const roomRef =
-        ref(
-            db,
-            "games/" + roomId
-        );
+    onValue(roomRef, async function (snapshot) {
 
+        if (!snapshot.exists()) {
 
-    onValue(
-        roomRef,
-        async function (snapshot) {
-
-            if (
-                !snapshot.exists()
-            ) {
-                return;
-            }
-
-
-            const data =
-                snapshot.val();
-
-
-            latestRoomData =
-                data;
-
-
-            console.log(
-                "Firebase Room Data:",
-                data
-            );
-
-
-            // ==================================================
-            // BOTH PLAYERS READY
-            // ==================================================
-
-            if (
-                data.player1Ready === true &&
-                data.player2Ready === true
-            ) {
-
-                if (
-                    turnScreen.classList.contains(
-                        "hidden"
-                    ) &&
-                    data.status !==
-                    "playing"
-                ) {
-
-                    setupScreen.classList.add(
-                        "hidden"
-                    );
-
-                    turnScreen.classList.remove(
-                        "hidden"
-                    );
-                }
-            }
-
-
-            // ==================================================
-            // PROCESS TURN CHOICES
-            // ==================================================
-
-            if (
-                data.player1Ready === true &&
-                data.player2Ready === true &&
-                data.player1TurnChoice &&
-                data.player2TurnChoice &&
-                data.status !== "playing" &&
-                data.status !== "finished"
-            ) {
-
-                await processTurnChoices(
-                    data
-                );
-            }
-
-
-            // ==================================================
-            // GAME START
-            // ==================================================
-
-            if (
-                data.status === "playing"
-            ) {
-
-                gameScreen.classList.remove(
-                    "hidden"
-                );
-
-                setupScreen.classList.add(
-                    "hidden"
-                );
-
-                turnScreen.classList.add(
-                    "hidden"
-                );
-
-
-                // Apna board load karo
-
-                const myBoard =
-                    playerRole === "player1"
-                        ? data.player1Board
-                        : data.player2Board;
-
-
-                if (
-                    Array.isArray(myBoard)
-                ) {
-
-                    setupNumbers =
-                        myBoard;
-                }
-
-
-                createGameGrid();
-
-
-                currentTurn =
-                    data.currentTurn;
-
-
-                updateTurnIndicator();
-
-
-                renderMultiplayerMarks(
-                    data
-                );
-
-
-                createReverseButton();
-
-                updateReverseButton(
-                    data
-                );
-            }
-
-
-            // ==================================================
-            // FINISHED
-            // ==================================================
-
-            if (
-                data.status === "finished"
-            ) {
-
-                currentTurn =
-                    data.currentTurn ||
-                    currentTurn;
-
-
-                renderMultiplayerMarks(
-                    data
-                );
-
-                createReverseButton();
-
-                updateReverseButton(
-                    data
-                );
-
-
-                if (
-                    data.winner
-                ) {
-
-                    gameOver = true;
-
-                    setTimeout(
-                        function () {
-
-                            if (
-                                data.winner ===
-                                playerRole
-                            ) {
-
-                                winnerText.innerText =
-                                    "🎉 YOU WIN!";
-
-                            } else {
-
-                                winnerText.innerText =
-                                    " 😭YOU LOSS";
-                            }
-
-
-                            winnerPopup.classList.remove(
-                                "hidden"
-                            );
-
-                        },
-                        300
-                    );
-                }
-            }
-
-
-            // ==================================================
-            // UPDATE TURN
-            // ==================================================
-
-            if (
-                data.currentTurn &&
-                data.status === "playing"
-            ) {
-
-                currentTurn =
-                    data.currentTurn;
-
-                updateTurnIndicator();
-            }
-
-
-            // ==================================================
-            // UPDATE MARKS
-            // ==================================================
-
-            if (
-                data.status === "playing" ||
-                data.status === "finished"
-            ) {
-
-                renderMultiplayerMarks(
-                    data
-                );
-
-                updateReverseButton(
-                    data
-                );
-            }
-
+            // Room was deleted (both players gone). Kick back to mode screen.
+            console.log("Room no longer exists.");
+            return;
         }
-    );
+
+        const data = snapshot.val();
+        latestRoomData = data;
+
+        console.log("Firebase Room Data:", data);
+
+        // ==========================================
+        // BOTH PLAYERS READY
+        // ==========================================
+        if (data.player1Ready === true && data.player2Ready === true) {
+
+            if (
+                turnScreen.classList.contains("hidden") &&
+                data.status !== "playing"
+            ) {
+                setupScreen.classList.add("hidden");
+                turnScreen.classList.remove("hidden");
+            }
+        }
+
+        // ==========================================
+        // PROCESS TURN CHOICES
+        // ==========================================
+        if (
+            data.player1Ready === true &&
+            data.player2Ready === true &&
+            data.player1TurnChoice &&
+            data.player2TurnChoice &&
+            data.status !== "playing" &&
+            data.status !== "finished"
+        ) {
+            await processTurnChoices(data);
+        }
+
+        // ==========================================
+        // GAME START
+        // ==========================================
+        if (data.status === "playing") {
+
+            gameScreen.classList.remove("hidden");
+            setupScreen.classList.add("hidden");
+            turnScreen.classList.add("hidden");
+
+            const myBoard = playerRole === "player1"
+                ? data.player1Board
+                : data.player2Board;
+
+            if (Array.isArray(myBoard)) {
+                setupNumbers = myBoard;
+            }
+
+            createGameGrid();
+
+            currentTurn = data.currentTurn;
+            updateTurnIndicator();
+
+            renderMultiplayerMarks(data);
+
+            createReverseButton();
+            updateReverseButton(data);
+        }
+
+        // ==========================================
+        // FINISHED
+        // ==========================================
+        if (data.status === "finished") {
+
+            currentTurn = data.currentTurn || currentTurn;
+
+            renderMultiplayerMarks(data);
+            createReverseButton();
+            updateReverseButton(data);
+
+            if (data.winner) {
+
+                gameOver = true;
+
+                setTimeout(function () {
+
+                    if (data.winner === playerRole) {
+                        winnerText.innerText = "🎉 YOU WIN!";
+                    } else {
+                        winnerText.innerText = "😭 YOU LOST";
+                    }
+
+                    winnerPopup.classList.remove("hidden");
+
+                }, 300);
+            }
+        }
+
+        // ==========================================
+        // UPDATE TURN
+        // ==========================================
+        if (data.currentTurn && data.status === "playing") {
+            currentTurn = data.currentTurn;
+            updateTurnIndicator();
+        }
+
+        // ==========================================
+        // UPDATE MARKS
+        // ==========================================
+        if (data.status === "playing" || data.status === "finished") {
+            renderMultiplayerMarks(data);
+            updateReverseButton(data);
+        }
+
+    });
 }
 
 
@@ -2614,26 +1502,9 @@ function listenToRoom() {
 // INITIALIZE APP
 // ======================================================
 
-modeScreen.classList.remove(
-    "hidden"
-);
-
-roomScreen.classList.add(
-    "hidden"
-);
-
-setupScreen.classList.add(
-    "hidden"
-);
-
-turnScreen.classList.add(
-    "hidden"
-);
-
-gameScreen.classList.add(
-    "hidden"
-);
-
-winnerPopup.classList.add(
-    "hidden"
-);
+modeScreen.classList.remove("hidden");
+roomScreen.classList.add("hidden");
+setupScreen.classList.add("hidden");
+turnScreen.classList.add("hidden");
+gameScreen.classList.add("hidden");
+winnerPopup.classList.add("hidden");
