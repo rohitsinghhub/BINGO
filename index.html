@@ -214,7 +214,7 @@
             </h2>
 
             <p>
-                4-digit Room ID enter karo
+                Enter the 4-digit Room ID
             </p>
 
 
@@ -484,35 +484,43 @@
     class="winner-popup hidden"
 >
 
-    <div class="winner-box">
+    
+<div class="winner-box">
 
-        <div class="trophy">
-            🏆
-        </div>
-
-        <h1>
-            BINGO!
-        </h1>
-
-        <h2 id="winnerText">
-            YOU WIN!
-        </h2>
-
-        <p>
-            5 winning lines completed
-        </p>
-
-        <button
-            id="winnerNewGame"
-            type="button"
-        >
-            PLAY AGAIN
-        </button>
-
+    <div
+        class="trophy"
+        id="winnerTrophy"
+    >
+        🏆
     </div>
 
-</div>
+    <h1 id="winnerTitle">
+        BINGO!
+    </h1>
 
+    <video
+        id="resultVideo"
+        class="result-video"
+        loop
+        playsinline
+    ></video>
+
+    <h2 id="winnerText">
+        YOU WIN!
+    </h2>
+
+    <p id="winnerDescription">
+        5 winning lines completed
+    </p>
+
+    <button
+        id="winnerNewGame"
+        type="button"
+    >
+        PLAY AGAIN
+    </button>
+
+</div>
 
 
 <!-- ========================================

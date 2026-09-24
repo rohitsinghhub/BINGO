@@ -83,9 +83,17 @@ const bingoLetters = document.querySelectorAll(".bingo-letter");
 const newGameBtn = document.getElementById("newGameBtn");
 
 // WINNER
+
+// WINNER
 const winnerPopup = document.getElementById("winnerPopup");
 const winnerText = document.getElementById("winnerText");
 const winnerNewGame = document.getElementById("winnerNewGame");
+
+const resultVideo = document.getElementById("resultVideo");
+
+const winnerTrophy = document.getElementById("winnerTrophy");
+const winnerTitle = document.getElementById("winnerTitle");
+const winnerDescription = document.getElementById("winnerDescription");
 
 
 // ======================================================
@@ -867,7 +875,7 @@ function showWinner() {
         if (currentTurn === "my") {
             winnerText.innerText = "🎉 YOU WIN!";
         } else {
-            winnerText.innerText = "😭 YOU LOST";
+            winnerText.innerText = "you los";
         }
 
     } else {
@@ -875,7 +883,7 @@ function showWinner() {
         if (latestRoomData && latestRoomData.winner === playerRole) {
             winnerText.innerText = "🎉 YOU WIN!";
         } else {
-            winnerText.innerText = "😭 YOU LOST";
+            winnerText.innerText = "you lost";
         }
     }
 
@@ -1049,6 +1057,11 @@ async function newGame() {
 // ======================================================
 
 newGameBtn.addEventListener("click", newGame);
+winnerNewGame.addEventListener("click", function () {
+    resultVideo.pause();
+    resultVideo.currentTime = 0;
+    resultVideo.muted = true;
+});
 winnerNewGame.addEventListener("click", newGame);
 
 
@@ -1466,13 +1479,34 @@ function listenToRoom() {
 
                 setTimeout(function () {
 
-                    if (data.winner === playerRole) {
-                        winnerText.innerText = "🎉 YOU WIN!";
-                    } else {
-                        winnerText.innerText = "😭 YOU LOST";
-                    }
+if (data.winner === playerRole) {
 
-                    winnerPopup.classList.remove("hidden");
+    resultVideo.src = "win.mp4";
+
+} else {
+
+    resultVideo.src = "lose.mp4";
+
+}
+
+// Hide old text
+winnerTrophy.style.display = "none";
+winnerTitle.style.display = "none";
+winnerText.style.display = "none";
+winnerDescription.style.display = "none";
+
+// Show video
+resultVideo.style.display = "block";
+
+resultVideo.currentTime = 0;
+resultVideo.loop = true;
+resultVideo.muted = false;
+
+winnerPopup.classList.remove("hidden");
+
+resultVideo.play().catch(function(error) {
+    console.log("Video play error:", error);
+});
 
                 }, 300);
             }
